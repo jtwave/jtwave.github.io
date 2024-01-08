@@ -1,1 +1,1 @@
-# portfolio-website
+# GS-IT-School

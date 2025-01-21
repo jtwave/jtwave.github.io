@@ -8,7 +8,7 @@ interface RestaurantCardProps {
 }
 
 export function RestaurantCard({ restaurant, className = '' }: RestaurantCardProps) {
-  // Ensure rating is a number and format it
+  // Ensure rating is a number
   const rating = typeof restaurant.rating === 'string'
     ? parseFloat(restaurant.rating)
     : (restaurant.rating || 0);
@@ -20,7 +20,6 @@ export function RestaurantCard({ restaurant, className = '' }: RestaurantCardPro
 
   // Format address
   const address = restaurant.address ||
-    (restaurant.address_obj?.address_string) ||
     [restaurant.address_line1, restaurant.address_line2].filter(Boolean).join(', ');
 
   console.log('Rendering restaurant card:', {
@@ -29,7 +28,8 @@ export function RestaurantCard({ restaurant, className = '' }: RestaurantCardPro
     formattedRating,
     reviews: reviewCount,
     address,
-    priceLevel: restaurant.priceLevel
+    priceLevel: restaurant.priceLevel,
+    cuisine: restaurant.cuisine
   });
 
   return (

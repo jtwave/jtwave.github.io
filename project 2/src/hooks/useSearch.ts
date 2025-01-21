@@ -15,7 +15,9 @@ export function useSearch() {
         name: place.name,
         rating: place.rating,
         reviews: place.reviews,
-        priceLevel: place.priceLevel
+        priceLevel: place.priceLevel,
+        website: place.website,
+        address: place.address
       })));
     }
   }, [searchResult]);
@@ -39,31 +41,58 @@ export function useSearch() {
       if (result.places) {
         // Process each place to ensure all fields are present
         const processedPlaces = result.places.map(place => {
-          console.log('Processing place:', place.name, {
-            rating: place.rating,
-            reviews: place.reviews || place.user_ratings_total,
-            priceLevel: place.priceLevel
-          });
+          // Ensure rating is a number
+          let rating = 0;
+          if (typeof place.rating === 'string') {
+            rating = parseFloat(place.rating);
+          } else if (typeof place.rating === 'number') {
+            rating = place.rating;
+          }
 
-          // Force convert rating to number if it's a string
-          const rating = typeof place.rating === 'string' ? parseFloat(place.rating) : place.rating;
+          // Get reviews count
+          const reviews = place.reviews || place.user_ratings_total || 0;
+
+          // Get address
+          const address = place.address ||
+            place.address_obj?.address_string ||
+            [place.address_line1, place.address_line2].filter(Boolean).join(', ');
+
+          // Get cuisine
+          const cuisine = Array.isArray(place.cuisine)
+            ? place.cuisine
+            : (place.categories || []).map(cat => ({ name: cat }));
+
+          console.log('Processing place:', place.name, {
+            rating,
+            reviews,
+            priceLevel: place.priceLevel,
+            address,
+            cuisine: cuisine.map(c => c.name)
+          });
 
           return {
             ...place,
-            rating: rating || 0,
-            reviews: place.reviews || place.user_ratings_total || 0,
-            priceLevel: place.priceLevel || '$',
-            cuisine: Array.isArray(place.cuisine) ? place.cuisine : [],
+            rating,
+            reviews,
+            priceLevel: place.priceLevel || '',
+            cuisine,
             photos: typeof place.photos === 'number' ? place.photos : 0,
             // Ensure these fields are always present
             locationId: place.locationId || place.place_id || '',
-            address: place.address || place.address_obj?.address_string || '',
+            address,
             website: place.website || '',
             phoneNumber: place.phoneNumber || place.phone || ''
           };
         });
 
-        console.log('Processed places:', processedPlaces);
+        console.log('Processed places:', processedPlaces.map(place => ({
+          name: place.name,
+          rating: place.rating,
+          reviews: place.reviews,
+          priceLevel: place.priceLevel,
+          website: place.website,
+          address: place.address
+        })));
 
         // Force a new object to trigger state update
         setSearchResult({

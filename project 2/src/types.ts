@@ -28,6 +28,11 @@ export interface Restaurant {
   categories?: string[];
   user_ratings_total?: number;
   distance?: number;
+  // TripAdvisor specific fields
+  address_obj?: {
+    address_string: string;
+  };
+  phone?: string;
 }
 
 export interface GeocodeResponse {

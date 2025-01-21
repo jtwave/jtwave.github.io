@@ -78,7 +78,7 @@ function FitBounds({ route, restaurants, originLocation, destinationLocation }: 
     }
 
     if (hasPoints) {
-      map.fitBounds(bounds, { 
+      map.fitBounds(bounds, {
         padding: [50, 50],
         maxZoom: 15
       });
@@ -88,10 +88,10 @@ function FitBounds({ route, restaurants, originLocation, destinationLocation }: 
   return null;
 }
 
-export function RouteMap({ 
-  center, 
-  restaurants, 
-  route, 
+export function RouteMap({
+  center,
+  restaurants,
+  route,
   defaultZoom = 10,
   originLocation,
   destinationLocation
@@ -107,14 +107,25 @@ export function RouteMap({
         scrollWheelZoom={true}
       >
         <TileLayer
-          url={`https://maps.geoapify.com/v1/tile/{style}/{z}/{x}/{y}.png?api_key=${import.meta.env.VITE_GEOAPIFY_API_KEY}`}
+          url={`https://maps.geoapify.com/v1/tile/osm-carto/{z}/{x}/{y}.png?api_key=${import.meta.env.VITE_GEOAPIFY_API_KEY}`}
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           style="osm-carto"
+          eventHandlers={{
+            error: () => {
+              console.log('Geoapify tiles failed, falling back to OpenStreetMap');
+              return (
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                />
+              );
+            }
+          }}
         />
 
-        <FitBounds 
-          route={route} 
-          restaurants={restaurants} 
+        <FitBounds
+          route={route}
+          restaurants={restaurants}
           originLocation={originLocation}
           destinationLocation={destinationLocation}
         />

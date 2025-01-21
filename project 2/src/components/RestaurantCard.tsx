@@ -9,20 +9,24 @@ interface RestaurantCardProps {
 
 export function RestaurantCard({ restaurant, className = '' }: RestaurantCardProps) {
   // Ensure rating is a number and format it
-  const rating = typeof restaurant.rating === 'string' ? parseFloat(restaurant.rating) : restaurant.rating;
-  const formattedRating = rating ? rating.toFixed(1) : 'No rating';
+  const rating = typeof restaurant.rating === 'string'
+    ? parseFloat(restaurant.rating)
+    : (restaurant.rating || 0);
 
-  // Get review count
+  const formattedRating = rating > 0 ? rating.toFixed(1) : 'No rating';
+
+  // Get review count, prioritize TripAdvisor reviews
   const reviewCount = restaurant.reviews || restaurant.user_ratings_total || 0;
 
   // Format address
   const address = restaurant.address ||
-    restaurant.address_obj?.address_string ||
+    (restaurant.address_obj?.address_string) ||
     [restaurant.address_line1, restaurant.address_line2].filter(Boolean).join(', ');
 
   console.log('Rendering restaurant card:', {
     name: restaurant.name,
-    rating: formattedRating,
+    rating,
+    formattedRating,
     reviews: reviewCount,
     address,
     priceLevel: restaurant.priceLevel

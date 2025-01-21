@@ -89,7 +89,7 @@ export class PlacesService {
             const props = feature.properties;
             if (props && props.name && props.lat && props.lon && !seenPlaceIds.has(props.place_id)) {
               seenPlaceIds.add(props.place_id);
-              
+
               // Create restaurant object without rating (will be added by TripAdvisor)
               const restaurant: Restaurant = {
                 place_id: props.place_id,
@@ -116,21 +116,48 @@ export class PlacesService {
 
       // Enrich with TripAdvisor data
       const enrichedPlaces = await Promise.all(
-        places.map(place => TripAdvisorClient.enrichRestaurantData(place))
+        places.map(async place => {
+          try {
+            const enrichedPlace = await TripAdvisorClient.enrichRestaurantData(place);
+            console.log('Enriched place data:', {
+              name: enrichedPlace.name,
+              rating: enrichedPlace.rating,
+              reviews: enrichedPlace.reviews,
+              priceLevel: enrichedPlace.priceLevel
+            });
+            return enrichedPlace;
+          } catch (error) {
+            console.error('Failed to enrich place:', place.name, error);
+            return place;
+          }
+        })
       );
 
       // Sort by TripAdvisor rating and distance
-      return enrichedPlaces
+      const sortedPlaces = enrichedPlaces
+        .filter(place => place !== null)
         .sort((a, b) => {
-          const ratingA = typeof a.rating === 'number' ? a.rating : 0;
-          const ratingB = typeof b.rating === 'number' ? b.rating : 0;
+          // Convert ratings to numbers, default to 0 if not present
+          const ratingA = typeof a.rating === 'string' ? parseFloat(a.rating) : (a.rating || 0);
+          const ratingB = typeof b.rating === 'string' ? parseFloat(b.rating) : (b.rating || 0);
+
+          // Get distances, default to 0 if not present
           const distanceA = parseFloat(a.distanceInfo?.distance || '0');
           const distanceB = parseFloat(b.distanceInfo?.distance || '0');
-          
+
           // Weight rating more heavily but consider distance
           return (ratingB - ratingA) * 2 + (distanceA - distanceB);
         })
         .slice(0, limit);
+
+      console.log('Final sorted places:', sortedPlaces.map(place => ({
+        name: place.name,
+        rating: place.rating,
+        reviews: place.reviews,
+        priceLevel: place.priceLevel
+      })));
+
+      return sortedPlaces;
 
     } catch (error) {
       console.error('Search failed:', error);
@@ -142,15 +169,15 @@ export class PlacesService {
     const R = 6371; // Earth's radius in km
     const dLat = (point.lat - origin.lat) * Math.PI / 180;
     const dLon = (point.lng - origin.lng) * Math.PI / 180;
-    
-    const a = 
-      Math.sin(dLat/2) * Math.sin(dLat/2) +
-      Math.cos(origin.lat * Math.PI / 180) * Math.cos(point.lat * Math.PI / 180) * 
-      Math.sin(dLon/2) * Math.sin(dLon/2);
-    
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(origin.lat * Math.PI / 180) * Math.cos(point.lat * Math.PI / 180) *
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const distance = R * c * 0.621371; // Convert to miles
-    
+
     return `${distance.toFixed(1)} mi from start`;
   }
 }

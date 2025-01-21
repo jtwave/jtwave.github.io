@@ -24,8 +24,20 @@ export async function getPlaceDetails(locationId: string): Promise<Partial<Resta
   try {
     console.log(`Fetching details for location ID: ${locationId}`);
 
-    const response = await fetch(`/.netlify/functions/tripadvisor?locationId=${locationId}`);
+    const response = await fetch('/.netlify/functions/tripadvisor-proxy', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        locationId,
+        fetchDetails: true
+      })
+    });
+
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Details response error:', errorText);
       throw new Error(`Failed to get place details: ${response.statusText}`);
     }
 
@@ -38,17 +50,17 @@ export async function getPlaceDetails(locationId: string): Promise<Partial<Resta
         locationId: result.data.location_id || locationId,
         name: result.data.name,
         location: {
-          lat: parseFloat(result.data.latitude),
-          lng: parseFloat(result.data.longitude)
+          lat: parseFloat(result.data.latitude || result.data.details.latitude),
+          lng: parseFloat(result.data.longitude || result.data.details.longitude)
         },
-        rating: result.data.rating,
-        reviews: result.data.num_reviews,
-        priceLevel: result.data.price_level,
-        website: result.data.web_url,
-        phoneNumber: result.data.phone,
-        address: result.data.address_obj?.address_string,
-        photos: result.data.photos || [],
-        businessStatus: result.data.business_status || 'OPERATIONAL'
+        rating: result.data.details.rating,
+        reviews: result.data.details.num_reviews,
+        priceLevel: result.data.details.price_level,
+        website: result.data.details.website,
+        phoneNumber: result.data.details.phone,
+        address: result.data.details.address_obj?.address_string,
+        photos: result.data.details.photos || [],
+        businessStatus: 'OPERATIONAL'
       };
 
       console.log(`Successfully processed details for: ${locationId}`, placeData);
@@ -92,11 +104,21 @@ async function searchSingleLocation(
     await new Promise(resolve => setTimeout(resolve, 500));
 
     // First, search for places using the name and location
-    const searchResponse = await fetch(
-      `/.netlify/functions/tripadvisor/search?lat=${location.lat}&lng=${location.lng}&type=${placeType}&radius=${radius}`
-    );
+    const searchResponse = await fetch('/.netlify/functions/tripadvisor-proxy', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        name: placeType,
+        latitude: location.lat,
+        longitude: location.lng
+      })
+    });
 
     if (!searchResponse.ok) {
+      const errorText = await searchResponse.text();
+      console.error('Search response error:', errorText);
       throw new Error(`Search failed: ${searchResponse.statusText}`);
     }
 
@@ -109,56 +131,48 @@ async function searchSingleLocation(
       return [];
     }
 
-    // Extract the location data from the search results
-    const results: Restaurant[] = await Promise.all(
-      searchData.data.map(async (item: any) => {
-        try {
-          return {
-            locationId: item.location_id,
-            name: item.name,
-            location: {
-              lat: parseFloat(item.latitude),
-              lng: parseFloat(item.longitude)
-            },
-            rating: item.rating,
-            reviews: item.num_reviews,
-            priceLevel: item.price_level,
-            website: item.web_url,
-            phoneNumber: item.phone,
-            address: item.address_obj?.address_string,
-            photos: item.photos || [],
-            businessStatus: item.business_status || 'OPERATIONAL'
-          };
-        } catch (error) {
-          console.error('Error processing search result item:', error);
-          return null;
-        }
-      })
-    );
-
-    // Filter out invalid results and duplicates
-    const validResults = results.filter((result): result is Restaurant =>
-      result !== null &&
-      result.locationId !== undefined &&
-      result.name !== undefined &&
-      !seenLocationIds.has(result.locationId) &&
-      result.businessStatus !== 'CLOSED'
-    );
-
-    // Add valid location IDs to seen set
-    validResults.forEach(result => {
-      seenLocationIds.add(result.locationId);
-    });
-
-    // Cache the results
-    if (validResults.length > 0) {
-      console.log(`Found ${validResults.length} valid results for location ${location.lat},${location.lng}`);
-      setCachedData(cacheKey, validResults);
-    } else {
-      console.log(`No valid results found for location ${location.lat},${location.lng}`);
+    // If data is null, it means no results were found
+    if (searchData.data === null) {
+      console.log(`No results found for ${placeType} at location:`, location);
+      return [];
     }
 
-    return validResults;
+    // Extract the location data from the search results
+    const item = searchData.data;
+    try {
+      const result: Restaurant = {
+        locationId: item.location_id,
+        name: item.name,
+        location: {
+          lat: parseFloat(item.latitude || item.details.latitude),
+          lng: parseFloat(item.longitude || item.details.longitude)
+        },
+        rating: item.details.rating,
+        reviews: item.details.num_reviews,
+        priceLevel: item.details.price_level,
+        website: item.details.website,
+        phoneNumber: item.details.phone,
+        address: item.details.address_obj?.address_string,
+        photos: item.details.photos || [],
+        businessStatus: 'OPERATIONAL'
+      };
+
+      // Only add if it's not already seen and has required fields
+      if (
+        result.locationId &&
+        result.name &&
+        !seenLocationIds.has(result.locationId)
+      ) {
+        seenLocationIds.add(result.locationId);
+        console.log(`Successfully processed result for ${result.name}`);
+        setCachedData(cacheKey, [result]);
+        return [result];
+      }
+    } catch (error) {
+      console.error('Error processing search result:', error);
+    }
+
+    return [];
   } catch (error) {
     console.error('Error searching locations:', error);
     return [];

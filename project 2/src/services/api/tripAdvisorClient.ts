@@ -1,6 +1,6 @@
 import type { Restaurant } from '../../types';
 
-const PROXY_URL = '/api/tripadvisor-proxy';
+const PROXY_URL = '/.netlify/functions/tripadvisor-proxy';
 
 interface TripAdvisorLocation {
   location_id: string;
@@ -43,7 +43,17 @@ export class TripAdvisorClient {
         body: JSON.stringify(data)
       });
 
-      const responseData = await response.json();
+      const responseText = await response.text();
+      console.log('Raw API Response:', responseText);
+
+      let responseData;
+      try {
+        responseData = JSON.parse(responseText);
+      } catch (e) {
+        console.error('Failed to parse response:', responseText);
+        throw new Error(`Invalid JSON response: ${responseText.substring(0, 100)}...`);
+      }
+
       console.log('API Response:', { path, status: response.status, data: responseData });
 
       if (!response.ok) {

@@ -49,10 +49,6 @@ export async function getPlaceDetails(locationId: string): Promise<Partial<Resta
       const data = result.data;
       const details = data.details || {};
 
-      // Get the best rating and review count from either response
-      const rating = details.rating || data.rating;
-      const reviews = details.num_reviews || data.num_reviews;
-
       const placeData: Partial<Restaurant> = {
         locationId: data.location_id || locationId,
         name: data.name,
@@ -60,8 +56,8 @@ export async function getPlaceDetails(locationId: string): Promise<Partial<Resta
           lat: parseFloat(data.latitude || details.latitude),
           lng: parseFloat(data.longitude || details.longitude)
         },
-        rating: rating ? parseFloat(rating.toString()) : undefined,
-        reviews: reviews,
+        rating: details.rating ? parseFloat(details.rating) : (data.rating ? parseFloat(data.rating) : undefined),
+        reviews: details.num_reviews ? parseInt(details.num_reviews) : (data.num_reviews ? parseInt(data.num_reviews) : undefined),
         priceLevel: details.price_level,
         website: details.website || data.website,
         phoneNumber: details.phone || data.phone,
@@ -69,6 +65,11 @@ export async function getPlaceDetails(locationId: string): Promise<Partial<Resta
         photos: details.photos || data.photos || [],
         businessStatus: 'OPERATIONAL'
       };
+
+      console.log(`Processed details with ratings for ${data.name}:`, {
+        rating: placeData.rating,
+        reviews: placeData.reviews
+      });
 
       console.log(`Successfully processed details for: ${locationId}`, placeData);
       setCachedData(cacheKey, placeData);
@@ -160,8 +161,8 @@ async function searchSingleLocation(
           lat: parseFloat(item.latitude || details.latitude || '0'),
           lng: parseFloat(item.longitude || details.longitude || '0')
         },
-        rating: rating ? parseFloat(rating.toString()) : undefined,
-        reviews: reviews ? parseInt(reviews.toString()) : undefined,
+        rating: details.rating ? parseFloat(details.rating) : (item.rating ? parseFloat(item.rating) : undefined),
+        reviews: details.num_reviews ? parseInt(details.num_reviews) : (item.num_reviews ? parseInt(item.num_reviews) : undefined),
         priceLevel: details.price_level,
         website: details.website || item.website,
         phoneNumber: details.phone || item.phone,
@@ -173,7 +174,11 @@ async function searchSingleLocation(
         } : undefined
       };
 
-      console.log('Processed restaurant data:', result);
+      console.log('Processed restaurant data with ratings:', {
+        name: result.name,
+        rating: result.rating,
+        reviews: result.reviews
+      });
 
       // Only add if it's not already seen and has required fields
       if (
@@ -248,10 +253,16 @@ export async function searchNearbyPlaces(
           const enrichedResult = {
             ...result,
             ...details,
-            // Ensure we keep the rating and reviews if they exist
+            // Keep the best rating and review data
             rating: details.rating || result.rating,
-            reviews: details.reviews || result.reviews
+            reviews: details.reviews || result.reviews,
+            // Ensure we keep the distance info
+            distanceInfo: result.distanceInfo
           };
+          console.log(`Enriched result for ${result.name}:`, {
+            rating: enrichedResult.rating,
+            reviews: enrichedResult.reviews
+          });
           enrichedResults.push(enrichedResult);
           console.log(`Successfully enriched ${result.name} with details:`, enrichedResult);
         } catch (error) {

@@ -133,7 +133,17 @@ export class PlacesService {
               address: enrichedPlace.address,
               cuisine: enrichedPlace.cuisine
             });
-            return enrichedPlace;
+            return {
+              ...place,
+              ...enrichedPlace,
+              // Ensure these fields are explicitly set
+              rating: enrichedPlace.rating || 0,
+              reviews: enrichedPlace.reviews || 0,
+              priceLevel: enrichedPlace.priceLevel || '',
+              website: enrichedPlace.website || '',
+              address: enrichedPlace.address || place.address_line1,
+              cuisine: enrichedPlace.cuisine || []
+            };
           } catch (error) {
             console.error('Failed to enrich place:', place.name, error);
             return place;
@@ -145,15 +155,10 @@ export class PlacesService {
       const sortedPlaces = enrichedPlaces
         .filter(place => place !== null)
         .sort((a, b) => {
-          // Convert ratings to numbers, default to 0 if not present
-          const ratingA = a.rating || 0;
-          const ratingB = b.rating || 0;
-
-          // Get distances, default to 0 if not present
+          const ratingA = parseFloat(a.rating?.toString() || '0');
+          const ratingB = parseFloat(b.rating?.toString() || '0');
           const distanceA = parseFloat(a.distance || '0');
           const distanceB = parseFloat(b.distance || '0');
-
-          // Weight rating more heavily but consider distance
           return (ratingB - ratingA) * 2 + (distanceA - distanceB);
         })
         .slice(0, limit);
@@ -169,7 +174,6 @@ export class PlacesService {
       })));
 
       return sortedPlaces;
-
     } catch (error) {
       console.error('Search failed:', error);
       throw error;

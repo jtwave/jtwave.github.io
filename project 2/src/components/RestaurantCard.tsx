@@ -1,6 +1,6 @@
 import React from 'react';
-import { Star, ExternalLink, Navigation } from 'lucide-react';
 import type { Restaurant } from '../types';
+import { StarIcon } from '@heroicons/react/20/solid';
 
 interface RestaurantCardProps {
   restaurant: Restaurant;
@@ -8,91 +8,85 @@ interface RestaurantCardProps {
 }
 
 export function RestaurantCard({ restaurant, className = '' }: RestaurantCardProps) {
-  const handleClick = () => {
-    if (restaurant.website) {
-      window.open(restaurant.website, '_blank');
-    }
-  };
+  // Ensure rating is a number and format it
+  const rating = typeof restaurant.rating === 'string' ? parseFloat(restaurant.rating) : restaurant.rating;
+  const formattedRating = rating ? rating.toFixed(1) : 'No rating';
 
-  // Helper function to format rating
-  const formatRating = (rating: string | number | undefined): string => {
-    if (!rating) return '';
-    if (typeof rating === 'string') {
-      const numRating = parseFloat(rating);
-      return isNaN(numRating) ? '' : numRating.toFixed(1);
-    }
-    return rating.toFixed(1);
-  };
+  // Get review count
+  const reviewCount = restaurant.reviews || restaurant.user_ratings_total || 0;
 
-  // Get the review count from either field
-  const reviewCount = restaurant.reviews || restaurant.user_ratings_total;
-  const rating = restaurant.rating;
+  // Format address
+  const address = restaurant.address ||
+    restaurant.address_obj?.address_string ||
+    [restaurant.address_line1, restaurant.address_line2].filter(Boolean).join(', ');
 
-  // Get additional TripAdvisor info
-  const priceLevel = restaurant.priceLevel;
-  const cuisine = restaurant.cuisine?.join(', ');
+  console.log('Rendering restaurant card:', {
+    name: restaurant.name,
+    rating: formattedRating,
+    reviews: reviewCount,
+    address,
+    priceLevel: restaurant.priceLevel
+  });
 
   return (
-    <div
-      className={`bg-white rounded-xl shadow-sm overflow-hidden cursor-pointer transform transition-all duration-300 hover:shadow-lg hover:scale-[1.02] group relative ${className}`}
-      onClick={handleClick}
-    >
+    <div className={`bg-white rounded-lg shadow-md overflow-hidden ${className}`}>
       <div className="p-4">
-        <h3 className="text-lg font-semibold mb-2 text-gray-900 group-hover:text-blue-600 transition-colors duration-300">
-          {restaurant.name}
-        </h3>
-
-        <div className="flex items-center mb-2 text-sm">
-          {rating ? (
-            <div className="flex items-center text-yellow-500">
-              <Star className="h-4 w-4 fill-current" />
-              <span className="ml-1 font-medium">{formatRating(rating)}</span>
-              {reviewCount && (
-                <span className="text-gray-500 text-sm ml-1">
-                  ({reviewCount})
-                </span>
-              )}
-              {priceLevel && (
-                <span className="text-gray-500 text-sm ml-2">
-                  · {priceLevel}
-                </span>
-              )}
-            </div>
-          ) : (
-            <span className="text-gray-500 text-sm">No ratings yet</span>
+        <div className="flex justify-between items-start">
+          <h3 className="text-lg font-semibold text-gray-900 flex-grow">
+            {restaurant.name}
+          </h3>
+          {restaurant.priceLevel && (
+            <span className="text-gray-600 text-sm ml-2">
+              {restaurant.priceLevel}
+            </span>
           )}
         </div>
 
-        <p className="text-gray-600 text-sm mb-1">
-          {restaurant.address || (
+        <div className="mt-2 flex items-center">
+          {rating > 0 && (
             <>
-              {restaurant.address_line1}
-              {restaurant.address_line2 && <>, {restaurant.address_line2}</>}
+              <div className="flex items-center">
+                <StarIcon className="h-5 w-5 text-yellow-400" />
+                <span className="ml-1 text-sm font-medium text-gray-900">
+                  {formattedRating}
+                </span>
+              </div>
+              {reviewCount > 0 && (
+                <span className="ml-2 text-sm text-gray-600">
+                  ({reviewCount} reviews)
+                </span>
+              )}
             </>
           )}
-        </p>
+        </div>
 
-        {cuisine && (
-          <p className="text-gray-500 text-sm mb-2">
-            {cuisine}
+        {address && (
+          <p className="mt-2 text-sm text-gray-600">
+            {address}
+          </p>
+        )}
+
+        {restaurant.cuisine && restaurant.cuisine.length > 0 && (
+          <p className="mt-1 text-sm text-gray-500">
+            {restaurant.cuisine.map(c => c.name || c).join(', ')}
           </p>
         )}
 
         {restaurant.website && (
-          <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full p-1.5 shadow-md group-hover:scale-110 transition-transform duration-300">
-            <ExternalLink className="h-4 w-4 text-blue-600" />
-          </div>
+          <a
+            href={restaurant.website}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 inline-block text-sm text-blue-600 hover:text-blue-800"
+          >
+            Visit Website
+          </a>
         )}
 
-        {restaurant.distanceInfo && (
-          <div className="mt-2">
-            <div className="inline-flex items-center space-x-1 bg-blue-50 rounded-full px-3 py-1">
-              <Navigation className="h-3 w-3 text-blue-600" />
-              <span className="text-xs font-medium text-gray-700">
-                {restaurant.distanceInfo.distance}
-              </span>
-            </div>
-          </div>
+        {restaurant.phoneNumber && (
+          <p className="mt-1 text-sm text-gray-600">
+            {restaurant.phoneNumber}
+          </p>
         )}
       </div>
     </div>

@@ -28,6 +28,8 @@ export function useSearch() {
 
     setIsSearching(true);
     setError(null);
+    // Force clear previous results
+    setSearchResult(null);
 
     try {
       console.log('Starting search with params:', params);
@@ -35,19 +37,38 @@ export function useSearch() {
       console.log('Raw search result:', result);
 
       if (result.places) {
-        // Ensure all required fields are present
-        const validatedPlaces = result.places.map(place => ({
-          ...place,
-          rating: place.rating || undefined,
-          reviews: place.reviews || place.user_ratings_total,
-          priceLevel: place.priceLevel || undefined,
-          cuisine: place.cuisine || [],
-          photos: typeof place.photos === 'number' ? place.photos : 0
-        }));
+        // Process each place to ensure all fields are present
+        const processedPlaces = result.places.map(place => {
+          console.log('Processing place:', place.name, {
+            rating: place.rating,
+            reviews: place.reviews || place.user_ratings_total,
+            priceLevel: place.priceLevel
+          });
 
+          // Force convert rating to number if it's a string
+          const rating = typeof place.rating === 'string' ? parseFloat(place.rating) : place.rating;
+
+          return {
+            ...place,
+            rating: rating || 0,
+            reviews: place.reviews || place.user_ratings_total || 0,
+            priceLevel: place.priceLevel || '$',
+            cuisine: Array.isArray(place.cuisine) ? place.cuisine : [],
+            photos: typeof place.photos === 'number' ? place.photos : 0,
+            // Ensure these fields are always present
+            locationId: place.locationId || place.place_id || '',
+            address: place.address || place.address_obj?.address_string || '',
+            website: place.website || '',
+            phoneNumber: place.phoneNumber || place.phone || ''
+          };
+        });
+
+        console.log('Processed places:', processedPlaces);
+
+        // Force a new object to trigger state update
         setSearchResult({
           ...result,
-          places: validatedPlaces
+          places: processedPlaces
         });
       } else {
         setSearchResult(result);

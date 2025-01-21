@@ -16,17 +16,21 @@ export function RestaurantCard({ restaurant, className = '' }: RestaurantCardPro
 
   // Helper function to format rating
   const formatRating = (rating: string | number | undefined): string => {
+    if (!rating) return '';
     if (typeof rating === 'string') {
-      return rating;
+      const numRating = parseFloat(rating);
+      return isNaN(numRating) ? '' : numRating.toFixed(1);
     }
-    if (typeof rating === 'number') {
-      return rating.toFixed(1);
-    }
-    return '';
+    return rating.toFixed(1);
   };
 
   // Get the review count from either field
-  const reviewCount = restaurant.user_ratings_total || restaurant.reviews;
+  const reviewCount = restaurant.reviews || restaurant.user_ratings_total;
+  const rating = restaurant.rating;
+
+  // Get additional TripAdvisor info
+  const priceLevel = restaurant.priceLevel;
+  const cuisine = restaurant.cuisine?.join(', ');
 
   return (
     <div
@@ -39,13 +43,18 @@ export function RestaurantCard({ restaurant, className = '' }: RestaurantCardPro
         </h3>
 
         <div className="flex items-center mb-2 text-sm">
-          {restaurant.rating ? (
+          {rating ? (
             <div className="flex items-center text-yellow-500">
               <Star className="h-4 w-4 fill-current" />
-              <span className="ml-1 font-medium">{formatRating(restaurant.rating)}</span>
+              <span className="ml-1 font-medium">{formatRating(rating)}</span>
               {reviewCount && (
                 <span className="text-gray-500 text-sm ml-1">
                   ({reviewCount})
+                </span>
+              )}
+              {priceLevel && (
+                <span className="text-gray-500 text-sm ml-2">
+                  · {priceLevel}
                 </span>
               )}
             </div>
@@ -54,7 +63,7 @@ export function RestaurantCard({ restaurant, className = '' }: RestaurantCardPro
           )}
         </div>
 
-        <p className="text-gray-600 text-sm">
+        <p className="text-gray-600 text-sm mb-1">
           {restaurant.address || (
             <>
               {restaurant.address_line1}
@@ -62,6 +71,12 @@ export function RestaurantCard({ restaurant, className = '' }: RestaurantCardPro
             </>
           )}
         </p>
+
+        {cuisine && (
+          <p className="text-gray-500 text-sm mb-2">
+            {cuisine}
+          </p>
+        )}
 
         {restaurant.website && (
           <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full p-1.5 shadow-md group-hover:scale-110 transition-transform duration-300">

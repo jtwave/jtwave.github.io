@@ -107,12 +107,10 @@ export class PlacesService {
                 website: props.website,
                 photos: 0,
                 businessStatus: 'OPERATIONAL',
-                distanceInfo: {
-                  distance: this.calculateDistanceFromOrigin(
-                    { lat: props.lat, lng: props.lon },
-                    originLocation
-                  )
-                }
+                distance: this.calculateDistanceFromOrigin(
+                  { lat: props.lat, lng: props.lon },
+                  originLocation
+                )
               };
 
               places.push(restaurant);
@@ -132,7 +130,8 @@ export class PlacesService {
               reviews: enrichedPlace.reviews,
               priceLevel: enrichedPlace.priceLevel,
               website: enrichedPlace.website,
-              address: enrichedPlace.address
+              address: enrichedPlace.address,
+              cuisine: enrichedPlace.cuisine
             });
             return enrichedPlace;
           } catch (error) {
@@ -147,12 +146,12 @@ export class PlacesService {
         .filter(place => place !== null)
         .sort((a, b) => {
           // Convert ratings to numbers, default to 0 if not present
-          const ratingA = typeof a.rating === 'string' ? parseFloat(a.rating) : (a.rating || 0);
-          const ratingB = typeof b.rating === 'string' ? parseFloat(b.rating) : (b.rating || 0);
+          const ratingA = a.rating || 0;
+          const ratingB = b.rating || 0;
 
           // Get distances, default to 0 if not present
-          const distanceA = parseFloat(a.distanceInfo?.distance || '0');
-          const distanceB = parseFloat(b.distanceInfo?.distance || '0');
+          const distanceA = parseFloat(a.distance || '0');
+          const distanceB = parseFloat(b.distance || '0');
 
           // Weight rating more heavily but consider distance
           return (ratingB - ratingA) * 2 + (distanceA - distanceB);
@@ -165,7 +164,8 @@ export class PlacesService {
         reviews: place.reviews,
         priceLevel: place.priceLevel,
         website: place.website,
-        address: place.address
+        address: place.address,
+        cuisine: place.cuisine
       })));
 
       return sortedPlaces;

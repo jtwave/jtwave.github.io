@@ -35,6 +35,10 @@ yarn-error.log*
 .DS_Store
 Thumbs.db
 
+# Netlify
+.netlify
+.functions-serve
+
 # Project specific
 ../BeatPeek
 ../tuneMap

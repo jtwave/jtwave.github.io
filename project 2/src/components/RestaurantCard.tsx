@@ -25,8 +25,11 @@ export function RestaurantCard({ restaurant, className = '' }: RestaurantCardPro
     return '';
   };
 
+  // Get the review count from either field
+  const reviewCount = restaurant.user_ratings_total || restaurant.reviews;
+
   return (
-    <div 
+    <div
       className={`bg-white rounded-xl shadow-sm overflow-hidden cursor-pointer transform transition-all duration-300 hover:shadow-lg hover:scale-[1.02] group relative ${className}`}
       onClick={handleClick}
     >
@@ -34,15 +37,15 @@ export function RestaurantCard({ restaurant, className = '' }: RestaurantCardPro
         <h3 className="text-lg font-semibold mb-2 text-gray-900 group-hover:text-blue-600 transition-colors duration-300">
           {restaurant.name}
         </h3>
-        
+
         <div className="flex items-center mb-2 text-sm">
           {restaurant.rating ? (
             <div className="flex items-center text-yellow-500">
               <Star className="h-4 w-4 fill-current" />
               <span className="ml-1 font-medium">{formatRating(restaurant.rating)}</span>
-              {restaurant.user_ratings_total && (
+              {reviewCount && (
                 <span className="text-gray-500 text-sm ml-1">
-                  ({restaurant.user_ratings_total})
+                  ({reviewCount})
                 </span>
               )}
             </div>
@@ -52,16 +55,20 @@ export function RestaurantCard({ restaurant, className = '' }: RestaurantCardPro
         </div>
 
         <p className="text-gray-600 text-sm">
-          {restaurant.address_line1}
-          {restaurant.address_line2 && <>, {restaurant.address_line2}</>}
+          {restaurant.address || (
+            <>
+              {restaurant.address_line1}
+              {restaurant.address_line2 && <>, {restaurant.address_line2}</>}
+            </>
+          )}
         </p>
-        
+
         {restaurant.website && (
           <div className="absolute top-2 right-2 bg-white/90 backdrop-blur-sm rounded-full p-1.5 shadow-md group-hover:scale-110 transition-transform duration-300">
             <ExternalLink className="h-4 w-4 text-blue-600" />
           </div>
         )}
-        
+
         {restaurant.distanceInfo && (
           <div className="mt-2">
             <div className="inline-flex items-center space-x-1 bg-blue-50 rounded-full px-3 py-1">

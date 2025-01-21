@@ -33,96 +33,81 @@ interface TripAdvisorLocation {
 }
 
 export class TripAdvisorClient {
+  private static async makeRequest(endpoint: string, data: any): Promise<any> {
+    const timestamp = new Date().getTime();
+    const response = await fetch(`${PROXY_URL}?_=${timestamp}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache',
+        'Pragma': 'no-cache'
+      },
+      body: JSON.stringify(data)
+    });
+
+    const responseData = await response.json();
+    console.log('API Response:', {
+      endpoint,
+      status: response.status,
+      data: responseData
+    });
+
+    if (!response.ok) {
+      throw new Error(responseData.message || `API error: ${response.status}`);
+    }
+
+    return responseData;
+  }
+
   static async searchLocation(name: string, lat: number, lon: number): Promise<TripAdvisorLocation | null> {
     try {
       console.log('Starting TripAdvisor search for:', name);
 
-      // First, make the search request
-      const searchResponse = await fetch(PROXY_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name,
-          latitude: lat,
-          longitude: lon,
-          type: 'restaurant'
-        })
+      // Make the search request
+      const searchData = await this.makeRequest(PROXY_URL, {
+        name,
+        latitude: lat,
+        longitude: lon,
+        type: 'restaurant'
       });
 
-      const searchData = await searchResponse.json();
-      console.log('Raw search response for', name, ':', JSON.stringify(searchData, null, 2));
+      // Extract the locations array
+      const locations = searchData.data?.data || [];
+      console.log('Search results for', name, ':', locations);
 
-      if (!searchResponse.ok) {
-        throw new Error(searchData.message || `TripAdvisor API error: ${searchResponse.status}`);
-      }
-
-      // Extract the locations array, handling both possible response structures
-      let locations;
-      if (Array.isArray(searchData.data)) {
-        console.log('Found direct data array for', name);
-        locations = searchData.data;
-      } else if (Array.isArray(searchData.data?.data)) {
-        console.log('Found nested data array for', name);
-        locations = searchData.data.data;
-      } else {
-        console.log('Unexpected data structure for', name, ':', typeof searchData.data);
+      if (locations.length === 0) {
+        console.log('No locations found for:', name);
         return null;
       }
-
-      if (!locations || locations.length === 0) {
-        console.log('No locations array or empty array for', name);
-        return null;
-      }
-
-      console.log('Found', locations.length, 'potential matches for', name);
 
       // Find the best matching location by name
       const matchingLocation = locations.find((location: TripAdvisorLocation) => {
         const locationName = location.name.toLowerCase();
         const searchName = name.toLowerCase();
-        const matches = locationName.includes(searchName) || searchName.includes(locationName);
-        if (matches) {
-          console.log('Found matching location for', name, ':', location.name);
-        }
-        return matches;
+        return locationName.includes(searchName) || searchName.includes(locationName);
       });
 
       if (!matchingLocation) {
-        console.log('No matching location found for', name);
+        console.log('No matching location found for:', name);
         return null;
       }
 
-      console.log('Fetching details for', name, 'with ID:', matchingLocation.location_id);
+      console.log('Found matching location:', matchingLocation);
 
-      // Fetch details for the matching location
-      const detailsResponse = await fetch(PROXY_URL, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          fetchDetails: true,
-          locationId: matchingLocation.location_id,
-          name
-        })
+      // Fetch details
+      const detailsData = await this.makeRequest(PROXY_URL, {
+        fetchDetails: true,
+        locationId: matchingLocation.location_id,
+        name
       });
 
-      const detailsData = await detailsResponse.json();
-      console.log('Details response for', name, ':', JSON.stringify(detailsData, null, 2));
-
-      if (!detailsResponse.ok) {
-        throw new Error(detailsData.message || `TripAdvisor API error: ${detailsResponse.status}`);
-      }
-
-      // Combine location and details data
+      // Combine the data
       const result = {
         ...matchingLocation,
         details: detailsData.data
       };
 
-      console.log('Final enriched data for', name, ':', JSON.stringify(result, null, 2));
+      console.log('Final enriched data for', name, ':', result);
       return result;
     } catch (error) {
       console.error(`TripAdvisor search failed for ${name}:`, error);
@@ -132,7 +117,7 @@ export class TripAdvisorClient {
 
   static async enrichRestaurantData(restaurant: Restaurant): Promise<Restaurant> {
     try {
-      console.log('Enriching restaurant data for:', restaurant.name);
+      console.log('Starting enrichment for:', restaurant.name);
 
       if (!restaurant.lat || !restaurant.lon) {
         console.error('Missing coordinates for restaurant:', restaurant.name);

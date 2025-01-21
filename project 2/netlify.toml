@@ -4,17 +4,10 @@
   functions = "netlify/functions"
 
 [[redirects]]
-  from = "/.netlify/functions/tripadvisor-proxy"
-  to = "/.netlify/functions/tripadvisor-proxy"
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
   status = 200
   force = true
-  methods = ["GET", "POST", "OPTIONS"]
-  headers = {Access-Control-Allow-Origin = "*", Access-Control-Allow-Headers = "Content-Type, Accept, Origin", Access-Control-Allow-Methods = "GET, POST, OPTIONS"}
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
 
 [[headers]]
   for = "/*"

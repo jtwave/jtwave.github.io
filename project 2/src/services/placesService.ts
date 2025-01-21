@@ -80,9 +80,10 @@ async function searchSingleLocation(
   location: { lat: number, lng: number },
   placeType: string,
   radius: number,
-  seenLocationIds: Set<string>
+  seenLocationIds: Set<string>,
+  restaurantName?: string
 ): Promise<Restaurant[]> {
-  const cacheKey = `search_${location.lat}_${location.lng}_${placeType}_${radius}`;
+  const cacheKey = `search_${location.lat}_${location.lng}_${restaurantName || placeType}_${radius}`;
   const cached = getCachedData<Restaurant[]>(cacheKey);
   if (cached) {
     console.log('Found cached results for location:', location);
@@ -110,9 +111,10 @@ async function searchSingleLocation(
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        name: placeType,
+        name: restaurantName || '',
         latitude: location.lat,
-        longitude: location.lng
+        longitude: location.lng,
+        type: placeType
       })
     });
 
@@ -133,7 +135,7 @@ async function searchSingleLocation(
 
     // If data is null, it means no results were found
     if (searchData.data === null) {
-      console.log(`No results found for ${placeType} at location:`, location);
+      console.log(`No results found for ${restaurantName || placeType} at location:`, location);
       return [];
     }
 
@@ -183,7 +185,8 @@ export async function searchNearbyPlaces(
   center: { lat: number, lng: number },
   placeType: string,
   radius: number,
-  maxResults: number
+  maxResults: number,
+  restaurantNames: string[]
 ): Promise<Restaurant[]> {
   const seenLocationIds = new Set<string>();
   const allResults: Restaurant[] = [];
@@ -191,45 +194,20 @@ export async function searchNearbyPlaces(
   try {
     console.log('Starting search for nearby places...');
 
-    // Initial search at the center point
-    console.log('Searching center point:', center);
-    const centerResults = await searchSingleLocation(
-      center,
-      placeType,
-      radius,
-      seenLocationIds
-    );
+    // Search for each restaurant name
+    for (const name of restaurantNames) {
+      console.log(`Searching for restaurant: ${name}`);
+      const results = await searchSingleLocation(
+        center,
+        placeType,
+        radius,
+        seenLocationIds,
+        name
+      );
 
-    if (centerResults.length > 0) {
-      console.log(`Found ${centerResults.length} results at center point`);
-      allResults.push(...centerResults);
-    }
-
-    // If we need more results, search in a grid pattern
-    if (allResults.length < maxResults) {
-      console.log('Searching additional grid points...');
-      const gridPoints = [
-        { lat: center.lat + 0.01, lng: center.lng },
-        { lat: center.lat - 0.01, lng: center.lng },
-        { lat: center.lat, lng: center.lng + 0.01 },
-        { lat: center.lat, lng: center.lng - 0.01 }
-      ];
-
-      // Search grid points sequentially instead of in parallel
-      for (const point of gridPoints) {
-        if (allResults.length < maxResults) {
-          console.log('Searching grid point:', point);
-          const results = await searchSingleLocation(
-            point,
-            placeType,
-            radius / 2,
-            seenLocationIds
-          );
-          if (results.length > 0) {
-            console.log(`Found ${results.length} results at grid point:`, point);
-            allResults.push(...results);
-          }
-        }
+      if (results.length > 0) {
+        console.log(`Found results for ${name}`);
+        allResults.push(...results);
       }
     }
 

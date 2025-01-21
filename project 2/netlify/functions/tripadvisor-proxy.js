@@ -66,9 +66,19 @@ exports.handler = async function (event, context) {
     }
 
     // Handle search request
-    const { name, latitude, longitude } = parsedBody;
-    if (!name || !latitude || !longitude) {
+    const { name, latitude, longitude, type } = parsedBody;
+    if (!latitude || !longitude) {
       throw new Error('Missing required parameters');
+    }
+
+    // If no specific name is provided, return empty result
+    if (!name) {
+      console.log('No restaurant name provided');
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ data: null })
+      };
     }
 
     const searchUrl = `https://api.content.tripadvisor.com/api/v1/location/search?key=${process.env.TRIPADVISOR_API_KEY}&searchQuery=${encodeURIComponent(name)}&latLong=${latitude},${longitude}&radius=5&radiusUnit=km&language=en`;

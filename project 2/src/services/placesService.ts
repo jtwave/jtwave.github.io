@@ -135,41 +135,45 @@ async function searchSingleLocation(
     console.log('TripAdvisor search raw response:', searchData);
 
     // Check if we have a valid response with data
-    if (!searchData || !searchData.data) {
+    if (!searchData?.data) {
       console.log('No data in search response for location:', location);
-      return [];
-    }
-
-    // If data is null, it means no results were found
-    if (searchData.data === null) {
-      console.log(`No results found for ${restaurantName || placeType} at location:`, location);
       return [];
     }
 
     // Extract the location data from the search results
     const item = searchData.data;
     const details = item.details || {};
+
     try {
+      console.log('Processing search result:', { item, details });
+
       // Get the best rating and review count from either response
       const rating = details.rating || item.rating;
       const reviews = details.num_reviews || item.num_reviews;
+
+      console.log('Extracted rating data:', { rating, reviews });
 
       const result: Restaurant = {
         locationId: item.location_id,
         name: item.name,
         location: {
-          lat: parseFloat(item.latitude || details.latitude),
-          lng: parseFloat(item.longitude || details.longitude)
+          lat: parseFloat(item.latitude || details.latitude || '0'),
+          lng: parseFloat(item.longitude || details.longitude || '0')
         },
         rating: rating ? parseFloat(rating.toString()) : undefined,
-        reviews: reviews,
+        reviews: reviews ? parseInt(reviews.toString()) : undefined,
         priceLevel: details.price_level,
         website: details.website || item.website,
         phoneNumber: details.phone || item.phone,
         address: details.address_obj?.address_string || item.address_obj?.address_string,
         photos: details.photos || item.photos || [],
-        businessStatus: 'OPERATIONAL'
+        businessStatus: 'OPERATIONAL',
+        distanceInfo: item.distance ? {
+          distance: `${parseFloat(item.distance).toFixed(1)} mi`
+        } : undefined
       };
+
+      console.log('Processed restaurant data:', result);
 
       // Only add if it's not already seen and has required fields
       if (
@@ -184,6 +188,7 @@ async function searchSingleLocation(
       }
     } catch (error) {
       console.error('Error processing search result:', error);
+      console.error('Failed data:', { item, details });
     }
 
     return [];
@@ -218,12 +223,13 @@ export async function searchNearbyPlaces(
       );
 
       if (results.length > 0) {
-        console.log(`Found results for ${name}`);
+        console.log(`Found results for ${name}:`, results);
         allResults.push(...results);
       }
     }
 
     console.log(`Total results found before sorting: ${allResults.length}`);
+    console.log('All results:', allResults);
 
     // Sort by rating and limit to maxResults
     const sortedResults = allResults
@@ -239,11 +245,15 @@ export async function searchNearbyPlaces(
         try {
           console.log(`Fetching details for ${result.name}...`);
           const details = await getPlaceDetails(result.locationId);
-          enrichedResults.push({
+          const enrichedResult = {
             ...result,
-            ...details
-          });
-          console.log(`Successfully enriched ${result.name} with details`);
+            ...details,
+            // Ensure we keep the rating and reviews if they exist
+            rating: details.rating || result.rating,
+            reviews: details.reviews || result.reviews
+          };
+          enrichedResults.push(enrichedResult);
+          console.log(`Successfully enriched ${result.name} with details:`, enrichedResult);
         } catch (error) {
           console.error(`Failed to get details for ${result.name}:`, error);
           enrichedResults.push(result); // Keep the original result if details fetch fails
@@ -251,7 +261,7 @@ export async function searchNearbyPlaces(
       }
     }
 
-    console.log(`Successfully processed ${enrichedResults.length} places`);
+    console.log(`Successfully processed ${enrichedResults.length} places:`, enrichedResults);
     return enrichedResults;
   } catch (error) {
     console.error('Error in searchNearbyPlaces:', error);

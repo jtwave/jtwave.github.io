@@ -6,18 +6,28 @@ export interface Location {
 export interface Restaurant {
   locationId: string;
   name: string;
-  location: Location;
+  location: {
+    lat: number;
+    lng: number;
+  };
   rating?: number;
   reviews?: number;
+  reviewCounts?: { [key: string]: number };
+  subratings?: Array<{ name: string; value: number }>;
   priceLevel?: string;
   website?: string;
   phoneNumber?: string;
   address?: string;
-  photos?: any[];
-  businessStatus?: string;
+  photos: number;
+  businessStatus: string;
   distanceInfo?: {
     distance: string;
   };
+  description?: string;
+  features?: string[];
+  cuisine?: string[];
+  hours?: string[];
+  ranking?: string;
   // Legacy fields for Geoapify compatibility
   place_id?: string;
   lat?: number;

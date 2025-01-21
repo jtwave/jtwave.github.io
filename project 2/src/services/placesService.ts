@@ -165,30 +165,58 @@ async function searchSingleLocation(
     try {
       console.log('Processing search result:', { item, details });
 
+      // Extract review counts from the review_rating_count object
+      const reviewCounts = details.review_rating_count || {};
+      const totalReviews = details.num_reviews ? parseInt(details.num_reviews) :
+        item.num_reviews ? parseInt(item.num_reviews) : undefined;
+
+      // Calculate average rating from review counts if not directly provided
+      let rating = details.rating ? parseFloat(details.rating) :
+        item.rating ? parseFloat(item.rating) : undefined;
+
+      // Get subratings if available
+      const subratings = details.subratings ? Object.values(details.subratings).map(
+        (rating: any) => ({ name: rating.localized_name, value: rating.value })
+      ) : [];
+
       const result: Restaurant = {
         locationId: item.location_id,
         name: item.name,
         location: {
-          lat: parseFloat(item.latitude || details.latitude || '0'),
-          lng: parseFloat(item.longitude || details.longitude || '0')
+          lat: parseFloat(details.latitude || item.latitude || '0'),
+          lng: parseFloat(details.longitude || item.longitude || '0')
         },
-        rating: details.rating ? parseFloat(details.rating) : (item.rating ? parseFloat(item.rating) : undefined),
-        reviews: details.num_reviews ? parseInt(details.num_reviews) : (item.num_reviews ? parseInt(item.num_reviews) : undefined),
+        rating,
+        reviews: totalReviews,
+        reviewCounts: Object.entries(reviewCounts).reduce((acc: any, [key, value]) => {
+          acc[key] = parseInt(value as string);
+          return acc;
+        }, {}),
+        subratings,
         priceLevel: details.price_level,
         website: details.website || item.website,
         phoneNumber: details.phone || item.phone,
         address: details.address_obj?.address_string || item.address_obj?.address_string,
-        photos: details.photos || item.photos || [],
+        photos: details.photo_count ? parseInt(details.photo_count) :
+          item.photo_count ? parseInt(item.photo_count) : 0,
         businessStatus: 'OPERATIONAL',
         distanceInfo: item.distance ? {
           distance: `${parseFloat(item.distance).toFixed(1)} mi`
-        } : undefined
+        } : undefined,
+        description: details.description,
+        features: details.features || [],
+        cuisine: (details.cuisine || []).map((c: any) => c.localized_name),
+        hours: details.hours?.weekday_text || [],
+        ranking: details.ranking_data?.ranking_string
       };
 
-      console.log('Processed restaurant data with ratings:', {
+      console.log('Processed restaurant data with full details:', {
         name: result.name,
         rating: result.rating,
-        reviews: result.reviews
+        reviews: result.reviews,
+        reviewCounts: result.reviewCounts,
+        subratings: result.subratings,
+        ranking: result.ranking
       });
 
       // Only add if it's not already seen and has required fields

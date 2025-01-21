@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Introduction } from '../components/Introduction';
 import { SearchForm } from '../components/SearchForm';
 import { RestaurantCard } from '../components/RestaurantCard';
@@ -17,6 +17,14 @@ export function RoutePage() {
     error,
   } = useSearch();
 
+  // Debug state changes
+  useEffect(() => {
+    if (searchResult) {
+      console.log('Route Page - Search Result:', searchResult);
+      console.log('Route Page - Places:', searchResult.places);
+    }
+  }, [searchResult]);
+
   const handleSearch = async (
     origin: string,
     destination: string,
@@ -26,6 +34,15 @@ export function RoutePage() {
     maxLocations: number
   ) => {
     try {
+      console.log('Route Page - Starting search with:', {
+        origin,
+        destination,
+        placeType,
+        distanceOffRoute,
+        skipFromStart,
+        maxLocations
+      });
+
       const params: SearchParams = {
         origin,
         destination,
@@ -37,7 +54,7 @@ export function RoutePage() {
 
       await search(params, 'route');
     } catch (err) {
-      console.error('Search failed:', err);
+      console.error('Route Page - Search failed:', err);
     }
   };
 
@@ -48,13 +65,13 @@ export function RoutePage() {
         <div className="animate-on-scroll">
           <SearchForm onSearch={handleSearch} isLoaded={true} mode="route" />
         </div>
-        
+
         <div className="mt-8 space-y-8">
           {/* Map Section - Always render the map */}
           <div className="animate-on-scroll">
             <Map
               mode="route"
-              center={searchResult?.center || { lat: 39.8283, lng: -98.5795 }} // Default to US center
+              center={searchResult?.center || { lat: 39.8283, lng: -98.5795 }}
               restaurants={searchResult?.places || []}
               route={searchResult?.route}
               defaultZoom={searchResult ? undefined : 4}
@@ -64,28 +81,36 @@ export function RoutePage() {
           </div>
 
           {/* Results Section */}
-          {searchResult?.places.length > 0 && (
+          {searchResult?.places && searchResult.places.length > 0 && (
             <div className="bg-white rounded-lg shadow-sm p-6">
               <h2 className="text-2xl font-bold mb-6 text-gray-900">
                 Places Along Your Route
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {searchResult.places.map((restaurant, index) => (
-                  <div
-                    key={restaurant.place_id}
-                    className="fade-in"
-                    style={{ animationDelay: `${index * 100}ms` }}
-                  >
-                    <RestaurantCard restaurant={restaurant} />
-                  </div>
-                ))}
+                {searchResult.places.map((restaurant, index) => {
+                  console.log('Rendering restaurant:', {
+                    name: restaurant.name,
+                    rating: restaurant.rating,
+                    reviews: restaurant.reviews,
+                    priceLevel: restaurant.priceLevel
+                  });
+                  return (
+                    <div
+                      key={restaurant.locationId || restaurant.place_id || index}
+                      className="fade-in"
+                      style={{ animationDelay: `${index * 100}ms` }}
+                    >
+                      <RestaurantCard restaurant={restaurant} />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
         </div>
 
         {isSearching && (
-          <LoadingScreen 
+          <LoadingScreen
             message="Searching for the best places..."
             subMessage="We're finding the perfect stops along your route"
           />

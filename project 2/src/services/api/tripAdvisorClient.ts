@@ -1,6 +1,8 @@
 import type { Restaurant } from '../../types';
 
 const PROXY_URL = '/.netlify/functions/tripadvisor-proxy';
+const MAX_RETRIES = 3;
+const RETRY_DELAY = 1000; // 1 second
 
 interface TripAdvisorLocation {
   location_id: string;
@@ -33,7 +35,11 @@ interface TripAdvisorLocation {
 }
 
 export class TripAdvisorClient {
-  private static async makeRequest(path: string, data: any): Promise<any> {
+  private static async delay(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  private static async makeRequest(path: string, data: any, retryCount = 0): Promise<any> {
     try {
       const response = await fetch(PROXY_URL, {
         method: 'POST',
@@ -55,6 +61,12 @@ export class TripAdvisorClient {
       }
 
       console.log('API Response:', { path, status: response.status, data: responseData });
+
+      if (response.status === 429 && retryCount < MAX_RETRIES) {
+        console.log(`Rate limited, retrying in ${RETRY_DELAY}ms...`);
+        await this.delay(RETRY_DELAY);
+        return this.makeRequest(path, data, retryCount + 1);
+      }
 
       if (!response.ok) {
         throw new Error(responseData.message || `API error: ${response.status}`);
@@ -132,16 +144,20 @@ export class TripAdvisorClient {
         return restaurant;
       }
 
+      // Get the best rating and review count from either the search or details response
+      const rating = tripAdvisorData.details?.rating || tripAdvisorData.rating;
+      const reviews = tripAdvisorData.details?.num_reviews || tripAdvisorData.num_reviews;
+
       // Create enriched restaurant data
       const enrichedRestaurant: Restaurant = {
         ...restaurant,
         locationId: tripAdvisorData.location_id,
-        rating: parseFloat(tripAdvisorData.rating?.toString() || '0'),
-        reviews: tripAdvisorData.num_reviews,
-        website: tripAdvisorData.website || tripAdvisorData.details?.website,
-        phoneNumber: tripAdvisorData.phone || tripAdvisorData.details?.phone,
-        address: tripAdvisorData.address_obj?.address_string || tripAdvisorData.details?.address_obj?.address_string,
-        photos: tripAdvisorData.photos || tripAdvisorData.details?.photos || [],
+        rating: rating ? parseFloat(rating.toString()) : undefined,
+        reviews: reviews,
+        website: tripAdvisorData.details?.website || tripAdvisorData.website,
+        phoneNumber: tripAdvisorData.details?.phone || tripAdvisorData.phone,
+        address: tripAdvisorData.details?.address_obj?.address_string || tripAdvisorData.address_obj?.address_string,
+        photos: tripAdvisorData.details?.photos || tripAdvisorData.photos || [],
         businessStatus: 'OPERATIONAL',
         location: {
           lat: parseFloat(tripAdvisorData.latitude || restaurant.lat.toString()),

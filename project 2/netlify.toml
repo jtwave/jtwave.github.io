@@ -4,15 +4,12 @@
   functions = "netlify/functions"
 
 [[redirects]]
-  from = "/.netlify/functions/*"
-  to = "/.netlify/functions/:splat"
+  from = "/.netlify/functions/tripadvisor-proxy"
+  to = "/.netlify/functions/tripadvisor-proxy"
   status = 200
   force = true
-  [redirects.headers]
-    Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Headers = "Content-Type, Accept, Origin"
-    Access-Control-Allow-Methods = "GET, POST, OPTIONS"
-    Access-Control-Max-Age = "86400"
+  methods = ["GET", "POST", "OPTIONS"]
+  headers = {Access-Control-Allow-Origin = "*", Access-Control-Allow-Headers = "Content-Type, Accept, Origin", Access-Control-Allow-Methods = "GET, POST, OPTIONS"}
 
 [[redirects]]
   from = "/*"
@@ -20,9 +17,10 @@
   status = 200
 
 [[headers]]
-  for = "/.netlify/functions/*"
+  for = "/*"
   [headers.values]
     Access-Control-Allow-Origin = "*"
-    Access-Control-Allow-Headers = "Content-Type, Accept, Origin"
     Access-Control-Allow-Methods = "GET, POST, OPTIONS"
-    Access-Control-Max-Age = "86400"
+    Access-Control-Allow-Headers = "Content-Type, Accept, Origin"
+    X-Frame-Options = "DENY"
+    X-XSS-Protection = "1; mode=block"

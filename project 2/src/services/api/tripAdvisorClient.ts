@@ -36,43 +36,62 @@ export class TripAdvisorClient {
   static async searchLocation(name: string, lat: number, lon: number): Promise<TripAdvisorLocation | null> {
     try {
       console.log('Starting TripAdvisor enrichment for:', name);
+      console.log('Search parameters:', { name, lat, lon });
+
+      const requestBody = {
+        name,
+        latitude: lat,
+        longitude: lon,
+        type: 'restaurant'
+      };
+
+      console.log('Making request to:', PROXY_URL);
+      console.log('Request body:', requestBody);
+
       const response = await fetch(PROXY_URL, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          name,
-          latitude: lat,
-          longitude: lon,
-          type: 'restaurant'
-        })
+        body: JSON.stringify(requestBody)
       });
 
+      console.log('Response status:', response.status);
+      const responseText = await response.text();
+      console.log('Raw response:', responseText);
+
       if (!response.ok) {
-        const errorText = await response.text();
-        console.error('TripAdvisor API error:', errorText);
+        console.error('TripAdvisor API error:', responseText);
         throw new Error(`TripAdvisor API error: ${response.status}`);
       }
 
-      const { data } = await response.json();
+      let parsedResponse;
+      try {
+        parsedResponse = JSON.parse(responseText);
+      } catch (e) {
+        console.error('Failed to parse response:', e);
+        throw new Error('Invalid JSON response from server');
+      }
 
-      if (!data) {
+      console.log('Parsed response:', parsedResponse);
+
+      if (!parsedResponse || !parsedResponse.data) {
         console.log('No TripAdvisor results found for:', name);
         return null;
       }
 
       // Extract data from the enriched response
       const locationData = {
-        ...data,
-        rating: data.details?.rating || data.rating,
-        num_reviews: data.details?.num_reviews || data.num_reviews,
-        website: data.details?.website || data.web_url,
-        phone: data.details?.phone || data.phone,
-        address_obj: data.details?.address_obj || data.address_obj,
-        photos: data.details?.photos || data.photos
+        ...parsedResponse.data,
+        rating: parsedResponse.data.details?.rating || parsedResponse.data.rating,
+        num_reviews: parsedResponse.data.details?.num_reviews || parsedResponse.data.num_reviews,
+        website: parsedResponse.data.details?.website || parsedResponse.data.web_url,
+        phone: parsedResponse.data.details?.phone || parsedResponse.data.phone,
+        address_obj: parsedResponse.data.details?.address_obj || parsedResponse.data.address_obj,
+        photos: parsedResponse.data.details?.photos || parsedResponse.data.photos
       };
 
+      console.log('Processed location data:', locationData);
       return locationData;
     } catch (error) {
       console.error(`TripAdvisor search failed for ${name}:`, error);
@@ -82,9 +101,17 @@ export class TripAdvisorClient {
 
   static async enrichRestaurantData(restaurant: Restaurant): Promise<Restaurant> {
     try {
+      console.log('Enriching restaurant data for:', restaurant.name);
+
+      if (!restaurant.lat || !restaurant.lon) {
+        console.error('Missing coordinates for restaurant:', restaurant.name);
+        return restaurant;
+      }
+
       const tripAdvisorData = await this.searchLocation(restaurant.name, restaurant.lat, restaurant.lon);
 
       if (!tripAdvisorData) {
+        console.log('No TripAdvisor data found for:', restaurant.name);
         return restaurant;
       }
 
@@ -105,6 +132,7 @@ export class TripAdvisorClient {
         }
       };
 
+      console.log('Successfully enriched restaurant:', enrichedRestaurant);
       return enrichedRestaurant;
     } catch (error) {
       console.error('Failed to enrich restaurant data:', restaurant.name, error);

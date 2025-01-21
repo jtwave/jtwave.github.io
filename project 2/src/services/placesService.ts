@@ -46,20 +46,27 @@ export async function getPlaceDetails(locationId: string): Promise<Partial<Resta
 
     // Check if we have valid data in the response
     if (result && result.data) {
+      const data = result.data;
+      const details = data.details || {};
+
+      // Get the best rating and review count from either response
+      const rating = details.rating || data.rating;
+      const reviews = details.num_reviews || data.num_reviews;
+
       const placeData: Partial<Restaurant> = {
-        locationId: result.data.location_id || locationId,
-        name: result.data.name,
+        locationId: data.location_id || locationId,
+        name: data.name,
         location: {
-          lat: parseFloat(result.data.latitude || result.data.details.latitude),
-          lng: parseFloat(result.data.longitude || result.data.details.longitude)
+          lat: parseFloat(data.latitude || details.latitude),
+          lng: parseFloat(data.longitude || details.longitude)
         },
-        rating: result.data.details.rating,
-        reviews: result.data.details.num_reviews,
-        priceLevel: result.data.details.price_level,
-        website: result.data.details.website,
-        phoneNumber: result.data.details.phone,
-        address: result.data.details.address_obj?.address_string,
-        photos: result.data.details.photos || [],
+        rating: rating ? parseFloat(rating.toString()) : undefined,
+        reviews: reviews,
+        priceLevel: details.price_level,
+        website: details.website || data.website,
+        phoneNumber: details.phone || data.phone,
+        address: details.address_obj?.address_string || data.address_obj?.address_string,
+        photos: details.photos || data.photos || [],
         businessStatus: 'OPERATIONAL'
       };
 
@@ -141,21 +148,26 @@ async function searchSingleLocation(
 
     // Extract the location data from the search results
     const item = searchData.data;
+    const details = item.details || {};
     try {
+      // Get the best rating and review count from either response
+      const rating = details.rating || item.rating;
+      const reviews = details.num_reviews || item.num_reviews;
+
       const result: Restaurant = {
         locationId: item.location_id,
         name: item.name,
         location: {
-          lat: parseFloat(item.latitude || item.details.latitude),
-          lng: parseFloat(item.longitude || item.details.longitude)
+          lat: parseFloat(item.latitude || details.latitude),
+          lng: parseFloat(item.longitude || details.longitude)
         },
-        rating: item.details.rating,
-        reviews: item.details.num_reviews,
-        priceLevel: item.details.price_level,
-        website: item.details.website,
-        phoneNumber: item.details.phone,
-        address: item.details.address_obj?.address_string,
-        photos: item.details.photos || [],
+        rating: rating ? parseFloat(rating.toString()) : undefined,
+        reviews: reviews,
+        priceLevel: details.price_level,
+        website: details.website || item.website,
+        phoneNumber: details.phone || item.phone,
+        address: details.address_obj?.address_string || item.address_obj?.address_string,
+        photos: details.photos || item.photos || [],
         businessStatus: 'OPERATIONAL'
       };
 
@@ -166,7 +178,7 @@ async function searchSingleLocation(
         !seenLocationIds.has(result.locationId)
       ) {
         seenLocationIds.add(result.locationId);
-        console.log(`Successfully processed result for ${result.name}`);
+        console.log(`Successfully processed result for ${result.name}`, result);
         setCachedData(cacheKey, [result]);
         return [result];
       }

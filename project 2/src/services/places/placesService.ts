@@ -93,13 +93,20 @@ export class PlacesService {
               // Create restaurant object without rating (will be added by TripAdvisor)
               const restaurant: Restaurant = {
                 place_id: props.place_id,
+                locationId: props.place_id,
                 name: props.name,
                 lat: props.lat,
                 lon: props.lon,
+                location: {
+                  lat: props.lat,
+                  lng: props.lon
+                },
                 address_line1: props.address_line1,
                 address_line2: props.address_line2,
                 categories: props.categories,
                 website: props.website,
+                photos: 0,
+                businessStatus: 'OPERATIONAL',
                 distanceInfo: {
                   distance: this.calculateDistanceFromOrigin(
                     { lat: props.lat, lng: props.lon },
@@ -123,7 +130,9 @@ export class PlacesService {
               name: enrichedPlace.name,
               rating: enrichedPlace.rating,
               reviews: enrichedPlace.reviews,
-              priceLevel: enrichedPlace.priceLevel
+              priceLevel: enrichedPlace.priceLevel,
+              website: enrichedPlace.website,
+              address: enrichedPlace.address
             });
             return enrichedPlace;
           } catch (error) {
@@ -154,7 +163,9 @@ export class PlacesService {
         name: place.name,
         rating: place.rating,
         reviews: place.reviews,
-        priceLevel: place.priceLevel
+        priceLevel: place.priceLevel,
+        website: place.website,
+        address: place.address
       })));
 
       return sortedPlaces;

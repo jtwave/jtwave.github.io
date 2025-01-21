@@ -4,38 +4,30 @@ export interface Location {
 }
 
 export interface Restaurant {
-  locationId: string;
+  locationId?: string;
   name: string;
-  location: {
-    lat: number;
-    lng: number;
-  };
+  lat: number;
+  lon: number;
   rating?: number;
   reviews?: number;
-  reviewCounts?: { [key: string]: number };
-  subratings?: Array<{ name: string; value: number }>;
   priceLevel?: string;
   website?: string;
   phoneNumber?: string;
   address?: string;
-  photos: number;
-  businessStatus: string;
-  distanceInfo?: {
-    distance: string;
+  photos?: number;
+  cuisine?: { name: string }[];
+  businessStatus?: string;
+  location?: {
+    lat: number;
+    lng: number;
   };
-  description?: string;
-  features?: string[];
-  cuisine?: string[];
-  hours?: string[];
-  ranking?: string;
   // Legacy fields for Geoapify compatibility
   place_id?: string;
-  lat?: number;
-  lon?: number;
   address_line1?: string;
   address_line2?: string;
   categories?: string[];
   user_ratings_total?: number;
+  distance?: number;
 }
 
 export interface GeocodeResponse {
@@ -78,6 +70,24 @@ export interface PlacesResponse {
       };
     };
   }>;
+}
+
+export interface TripAdvisorResponse {
+  location_id: string;
+  name: string;
+  latitude: string;
+  longitude: string;
+  rating: number;
+  num_reviews: number;
+  price_level: string;
+  website: string;
+  phone: string;
+  address_obj: {
+    address_string: string;
+  };
+  photo_count: number;
+  cuisine?: Array<{ name: string }>;
+  details?: TripAdvisorResponse;
 }
 
 export class GeoapifyError extends Error {

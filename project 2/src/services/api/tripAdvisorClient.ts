@@ -1,4 +1,4 @@
-import type { Restaurant } from '../../types';
+import { Restaurant, TripAdvisorResponse } from '../../types';
 
 const PROXY_URL = '/.netlify/functions/tripadvisor-proxy';
 const MAX_RETRIES = 3;
@@ -39,94 +39,44 @@ export class TripAdvisorClient {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  private static async makeRequest(path: string, data: any, retryCount = 0): Promise<any> {
+  private static async makeRequest(method: string, path: string, body?: any): Promise<any> {
     try {
-      const response = await fetch(PROXY_URL, {
-        method: 'POST',
+      const response = await fetch(path, {
+        method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(data)
+        body: body ? JSON.stringify(body) : undefined
       });
 
-      const responseText = await response.text();
-      console.log('Raw API Response:', responseText);
-
-      let responseData;
-      try {
-        responseData = JSON.parse(responseText);
-      } catch (e) {
-        console.error('Failed to parse response:', responseText);
-        throw new Error(`Invalid JSON response: ${responseText.substring(0, 100)}...`);
-      }
-
-      console.log('API Response:', { path, status: response.status, data: responseData });
-
-      if (response.status === 429 && retryCount < MAX_RETRIES) {
-        console.log(`Rate limited, retrying in ${RETRY_DELAY}ms...`);
-        await this.delay(RETRY_DELAY);
-        return this.makeRequest(path, data, retryCount + 1);
-      }
-
       if (!response.ok) {
-        throw new Error(responseData.message || `API error: ${response.status}`);
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      return responseData;
+      const data = await response.json();
+      return data;
     } catch (error) {
-      console.error('API request failed:', { path, error });
+      console.error('API request failed:', error);
       throw error;
     }
   }
 
-  static async searchLocation(name: string, lat: number, lon: number): Promise<TripAdvisorLocation | null> {
+  static async searchLocation(name: string, lat: number, lon: number): Promise<TripAdvisorResponse | null> {
     try {
-      console.log('Starting TripAdvisor search for:', name);
-
-      // Make the search request
-      const searchData = await this.makeRequest('/location/search', {
+      const response = await this.makeRequest('POST', PROXY_URL, {
         name,
-        latitude: lat,
-        longitude: lon,
-        type: 'restaurant'
+        lat,
+        lon
       });
 
-      // Extract the locations array
-      const locations = searchData.data || [];
-      console.log('Search results:', locations);
-
-      if (!Array.isArray(locations) || locations.length === 0) {
+      if (!response) {
+        console.log('No TripAdvisor results found for:', name);
         return null;
       }
 
-      // Find the best matching location by name
-      const matchingLocation = locations.find((location: TripAdvisorLocation) => {
-        const locationName = location.name.toLowerCase();
-        const searchName = name.toLowerCase();
-        return locationName.includes(searchName) || searchName.includes(locationName);
-      });
-
-      if (!matchingLocation) {
-        return null;
-      }
-
-      console.log('Found matching location:', matchingLocation);
-
-      // Fetch details
-      const detailsData = await this.makeRequest(`/location/${matchingLocation.location_id}/details`, {
-        name
-      });
-
-      // Combine the data
-      const result = {
-        ...matchingLocation,
-        details: detailsData.data
-      };
-
-      console.log('Final enriched data:', result);
-      return result;
+      return response as TripAdvisorResponse;
     } catch (error) {
-      console.error(`TripAdvisor search failed for ${name}:`, error);
+      console.error('TripAdvisor search failed:', error);
       return null;
     }
   }
@@ -144,20 +94,29 @@ export class TripAdvisorClient {
         return restaurant;
       }
 
-      // Get the best rating and review count from either the search or details response
-      const rating = tripAdvisorData.details?.rating || tripAdvisorData.rating;
-      const reviews = tripAdvisorData.details?.num_reviews || tripAdvisorData.num_reviews;
+      // Get the best data from either the details or top-level response
+      const details = tripAdvisorData.details || tripAdvisorData;
+      const rating = details.rating;
+      const reviews = details.num_reviews;
+      const priceLevel = details.price_level;
+      const website = details.website;
+      const phone = details.phone;
+      const address = details.address_obj?.address_string;
+      const photos = details.photo_count || 0;
+      const cuisine = details.cuisine?.map(c => ({ name: c.name })) || [];
 
       // Create enriched restaurant data
       const enrichedRestaurant: Restaurant = {
         ...restaurant,
         locationId: tripAdvisorData.location_id,
         rating: rating ? parseFloat(rating.toString()) : undefined,
-        reviews: reviews,
-        website: tripAdvisorData.details?.website || tripAdvisorData.website,
-        phoneNumber: tripAdvisorData.details?.phone || tripAdvisorData.phone,
-        address: tripAdvisorData.details?.address_obj?.address_string || tripAdvisorData.address_obj?.address_string,
-        photos: tripAdvisorData.details?.photos || tripAdvisorData.photos || [],
+        reviews: reviews ? parseInt(reviews.toString()) : undefined,
+        priceLevel: priceLevel || restaurant.priceLevel,
+        website: website || restaurant.website,
+        phoneNumber: phone || restaurant.phoneNumber,
+        address: address || restaurant.address,
+        photos: photos,
+        cuisine: cuisine,
         businessStatus: 'OPERATIONAL',
         location: {
           lat: parseFloat(tripAdvisorData.latitude || restaurant.lat.toString()),
@@ -165,7 +124,16 @@ export class TripAdvisorClient {
         }
       };
 
-      console.log('Successfully enriched restaurant:', enrichedRestaurant);
+      console.log('Successfully enriched restaurant:', {
+        name: enrichedRestaurant.name,
+        rating: enrichedRestaurant.rating,
+        reviews: enrichedRestaurant.reviews,
+        priceLevel: enrichedRestaurant.priceLevel,
+        website: enrichedRestaurant.website,
+        address: enrichedRestaurant.address,
+        cuisine: enrichedRestaurant.cuisine
+      });
+
       return enrichedRestaurant;
     } catch (error) {
       console.error('Failed to enrich restaurant data:', restaurant.name, error);

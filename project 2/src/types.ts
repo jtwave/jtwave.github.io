@@ -18,6 +18,14 @@ export interface Restaurant {
   distanceInfo?: {
     distance: string;
   };
+  // Legacy fields for Geoapify compatibility
+  place_id?: string;
+  lat?: number;
+  lon?: number;
+  address_line1?: string;
+  address_line2?: string;
+  categories?: string[];
+  user_ratings_total?: number;
 }
 
 export interface GeocodeResponse {

@@ -13,19 +13,29 @@ interface TripAdvisorLocation {
     city: string;
     state: string;
     country: string;
+    address_string: string;
   };
   website: string;
+  phone: string;
+  latitude: string;
+  longitude: string;
+  photos?: any[];
   details?: {
     rating: number;
     num_reviews: number;
     website: string;
+    phone: string;
+    address_obj: {
+      address_string: string;
+    };
+    photos?: any[];
   };
 }
 
 export class TripAdvisorClient {
   static async searchLocation(name: string, lat: number, lon: number): Promise<TripAdvisorLocation | null> {
     try {
-      console.log('Searching TripAdvisor for:', name);
+      console.log('Starting TripAdvisor enrichment for:', name);
       const response = await fetch(PROXY_URL, {
         method: 'POST',
         headers: {
@@ -34,7 +44,8 @@ export class TripAdvisorClient {
         body: JSON.stringify({
           name,
           latitude: lat,
-          longitude: lon
+          longitude: lon,
+          type: 'restaurant'
         })
       });
 
@@ -45,31 +56,26 @@ export class TripAdvisorClient {
       }
 
       const { data } = await response.json();
-      
+
       if (!data) {
-        console.log('No TripAdvisor data found for:', name);
+        console.log('No TripAdvisor results found for:', name);
         return null;
       }
 
-      // Log the entire data object to see what we're getting
-      console.log('Raw TripAdvisor data:', data);
+      // Extract data from the enriched response
+      const locationData = {
+        ...data,
+        rating: data.details?.rating || data.rating,
+        num_reviews: data.details?.num_reviews || data.num_reviews,
+        website: data.details?.website || data.web_url,
+        phone: data.details?.phone || data.phone,
+        address_obj: data.details?.address_obj || data.address_obj,
+        photos: data.details?.photos || data.photos
+      };
 
-      // Make sure we're accessing the correct properties
-      const rating = data.details?.rating || data.rating;
-      const numReviews = data.details?.num_reviews || data.num_reviews;
-      const website = data.details?.website || data.website;
-
-      console.log('Extracted TripAdvisor data:', {
-        name: data.name,
-        rating,
-        numReviews,
-        website
-      });
-
-      return data;
-
+      return locationData;
     } catch (error) {
-      console.warn(`TripAdvisor search failed for ${name}:`, error);
+      console.error(`TripAdvisor search failed for ${name}:`, error);
       return null;
     }
   }
@@ -79,34 +85,29 @@ export class TripAdvisorClient {
       const tripAdvisorData = await this.searchLocation(restaurant.name, restaurant.lat, restaurant.lon);
 
       if (!tripAdvisorData) {
-        console.log('No TripAdvisor data found for:', restaurant.name);
         return restaurant;
       }
 
-      // Use the most detailed rating available
-      const rating = tripAdvisorData.details?.rating || tripAdvisorData.rating;
-      const numReviews = tripAdvisorData.details?.num_reviews || tripAdvisorData.num_reviews;
-      const website = tripAdvisorData.details?.website || tripAdvisorData.website;
-
-      console.log('Enriching restaurant data:', {
-        name: restaurant.name,
-        rating,
-        numReviews,
-        website
-      });
-
-      // Make sure we're returning a number for rating
-      const parsedRating = rating ? parseFloat(rating.toString()) : undefined;
-
-      return {
+      // Create enriched restaurant data
+      const enrichedRestaurant: Restaurant = {
         ...restaurant,
-        rating: parsedRating || restaurant.rating,
-        user_ratings_total: numReviews || restaurant.user_ratings_total,
-        website: website || restaurant.website
+        locationId: tripAdvisorData.location_id,
+        rating: parseFloat(tripAdvisorData.rating?.toString() || '0'),
+        reviews: tripAdvisorData.num_reviews,
+        website: tripAdvisorData.website,
+        phoneNumber: tripAdvisorData.phone,
+        address: tripAdvisorData.address_obj?.address_string,
+        photos: tripAdvisorData.photos || [],
+        businessStatus: 'OPERATIONAL',
+        location: {
+          lat: parseFloat(tripAdvisorData.latitude || restaurant.lat.toString()),
+          lng: parseFloat(tripAdvisorData.longitude || restaurant.lon.toString())
+        }
       };
 
+      return enrichedRestaurant;
     } catch (error) {
-      console.warn('Failed to enrich restaurant data:', restaurant.name, error);
+      console.error('Failed to enrich restaurant data:', restaurant.name, error);
       return restaurant;
     }
   }

@@ -33,30 +33,28 @@ interface TripAdvisorLocation {
 }
 
 export class TripAdvisorClient {
-  private static async makeRequest(endpoint: string, data: any): Promise<any> {
-    const timestamp = new Date().getTime();
-    const response = await fetch(`${PROXY_URL}?_=${timestamp}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
-      },
-      body: JSON.stringify(data)
-    });
+  private static async makeRequest(path: string, data: any): Promise<any> {
+    try {
+      const response = await fetch(PROXY_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data)
+      });
 
-    const responseData = await response.json();
-    console.log('API Response:', {
-      endpoint,
-      status: response.status,
-      data: responseData
-    });
+      const responseData = await response.json();
+      console.log('API Response:', { path, status: response.status, data: responseData });
 
-    if (!response.ok) {
-      throw new Error(responseData.message || `API error: ${response.status}`);
+      if (!response.ok) {
+        throw new Error(responseData.message || `API error: ${response.status}`);
+      }
+
+      return responseData;
+    } catch (error) {
+      console.error('API request failed:', { path, error });
+      throw error;
     }
-
-    return responseData;
   }
 
   static async searchLocation(name: string, lat: number, lon: number): Promise<TripAdvisorLocation | null> {
@@ -64,7 +62,7 @@ export class TripAdvisorClient {
       console.log('Starting TripAdvisor search for:', name);
 
       // Make the search request
-      const searchData = await this.makeRequest(PROXY_URL, {
+      const searchData = await this.makeRequest('/location/search', {
         name,
         latitude: lat,
         longitude: lon,
@@ -72,11 +70,10 @@ export class TripAdvisorClient {
       });
 
       // Extract the locations array
-      const locations = searchData.data?.data || [];
-      console.log('Search results for', name, ':', locations);
+      const locations = searchData.data || [];
+      console.log('Search results:', locations);
 
-      if (locations.length === 0) {
-        console.log('No locations found for:', name);
+      if (!Array.isArray(locations) || locations.length === 0) {
         return null;
       }
 
@@ -88,16 +85,13 @@ export class TripAdvisorClient {
       });
 
       if (!matchingLocation) {
-        console.log('No matching location found for:', name);
         return null;
       }
 
       console.log('Found matching location:', matchingLocation);
 
       // Fetch details
-      const detailsData = await this.makeRequest(PROXY_URL, {
-        fetchDetails: true,
-        locationId: matchingLocation.location_id,
+      const detailsData = await this.makeRequest(`/location/${matchingLocation.location_id}/details`, {
         name
       });
 
@@ -107,7 +101,7 @@ export class TripAdvisorClient {
         details: detailsData.data
       };
 
-      console.log('Final enriched data for', name, ':', result);
+      console.log('Final enriched data:', result);
       return result;
     } catch (error) {
       console.error(`TripAdvisor search failed for ${name}:`, error);
@@ -117,8 +111,6 @@ export class TripAdvisorClient {
 
   static async enrichRestaurantData(restaurant: Restaurant): Promise<Restaurant> {
     try {
-      console.log('Starting enrichment for:', restaurant.name);
-
       if (!restaurant.lat || !restaurant.lon) {
         console.error('Missing coordinates for restaurant:', restaurant.name);
         return restaurant;
@@ -127,7 +119,6 @@ export class TripAdvisorClient {
       const tripAdvisorData = await this.searchLocation(restaurant.name, restaurant.lat, restaurant.lon);
 
       if (!tripAdvisorData) {
-        console.log('No TripAdvisor data found for:', restaurant.name);
         return restaurant;
       }
 

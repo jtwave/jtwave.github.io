@@ -2,6 +2,8 @@ import type { Restaurant } from '../types';
 
 const CACHE_DURATION = 1000 * 60 * 5; // 5 minutes
 const placeCache = new Map<string, { data: any, timestamp: number }>();
+const MAX_RETRIES = 3;
+const INITIAL_RETRY_DELAY = 1000; // 1 second
 
 function getCachedData<T>(key: string): T | null {
   const cached = placeCache.get(key);
@@ -15,6 +17,51 @@ function setCachedData<T>(key: string, data: T): void {
   placeCache.set(key, { data, timestamp: Date.now() });
 }
 
+async function wait(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function makeRequestWithRetry(
+  path: string,
+  body: any,
+  retryCount = 0
+): Promise<any> {
+  try {
+    const response = await fetch('/.netlify/functions/tripadvisor-proxy', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body)
+    });
+
+    if (response.status === 429 && retryCount < MAX_RETRIES) {
+      const delay = INITIAL_RETRY_DELAY * Math.pow(2, retryCount);
+      console.log(`Rate limited, retrying in ${delay}ms...`);
+      await wait(delay);
+      return makeRequestWithRetry(path, body, retryCount + 1);
+    }
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`${path} response error:`, errorText);
+      throw new Error(`Failed to make request: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    console.log(`${path} raw response:`, result);
+    return result;
+  } catch (error) {
+    if (retryCount < MAX_RETRIES) {
+      const delay = INITIAL_RETRY_DELAY * Math.pow(2, retryCount);
+      console.log(`Request failed, retrying in ${delay}ms...`, error);
+      await wait(delay);
+      return makeRequestWithRetry(path, body, retryCount + 1);
+    }
+    throw error;
+  }
+}
+
 export async function getPlaceDetails(locationId: string): Promise<Partial<Restaurant>> {
   // Check cache first
   const cacheKey = `place_${locationId}`;
@@ -24,25 +71,10 @@ export async function getPlaceDetails(locationId: string): Promise<Partial<Resta
   try {
     console.log(`Fetching details for location ID: ${locationId}`);
 
-    const response = await fetch('/.netlify/functions/tripadvisor-proxy', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        locationId,
-        fetchDetails: true
-      })
+    const result = await makeRequestWithRetry('/location/details', {
+      locationId,
+      fetchDetails: true
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Details response error:', errorText);
-      throw new Error(`Failed to get place details: ${response.statusText}`);
-    }
-
-    const result = await response.json();
-    console.log(`Place details raw response for ${locationId}:`, result);
 
     // Check if we have valid data in the response
     if (result && result.data) {
@@ -110,30 +142,15 @@ async function searchSingleLocation(
     console.log('Fetching results for location:', location);
 
     // Add a small delay to avoid overwhelming the API
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await wait(500);
 
     // First, search for places using the name and location
-    const searchResponse = await fetch('/.netlify/functions/tripadvisor-proxy', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        name: restaurantName || '',
-        latitude: location.lat,
-        longitude: location.lng,
-        type: placeType
-      })
+    const searchData = await makeRequestWithRetry('/location/search', {
+      name: restaurantName || '',
+      latitude: location.lat,
+      longitude: location.lng,
+      type: placeType
     });
-
-    if (!searchResponse.ok) {
-      const errorText = await searchResponse.text();
-      console.error('Search response error:', errorText);
-      throw new Error(`Search failed: ${searchResponse.statusText}`);
-    }
-
-    const searchData = await searchResponse.json();
-    console.log('TripAdvisor search raw response:', searchData);
 
     // Check if we have a valid response with data
     if (!searchData?.data) {
@@ -147,12 +164,6 @@ async function searchSingleLocation(
 
     try {
       console.log('Processing search result:', { item, details });
-
-      // Get the best rating and review count from either response
-      const rating = details.rating || item.rating;
-      const reviews = details.num_reviews || item.num_reviews;
-
-      console.log('Extracted rating data:', { rating, reviews });
 
       const result: Restaurant = {
         locationId: item.location_id,

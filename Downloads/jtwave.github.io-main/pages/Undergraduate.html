@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Undergraduate Researcher - Software/Web Developer</title>
+    <link rel="stylesheet" href="../assets/css/main.css">
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        body.is-preload {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .post {
+            max-width: 800px;
+            width: 100%;
+            margin: auto;
+            padding: 2em 1em;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .actions {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .actions .button {
+            margin: 0.5em 0;
+            padding: 0.5em 2em;
+            background-color: #8ebebc;
+            border: none;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 0.35em;
+        }
+
+        .actions .button:hover {
+            background-color: #9ececc;
+        }
+
+        #footer {
+            width: 100%;
+            background-color: #dce3e2;
+            padding: 1em 0;
+            text-align: center;
+            box-shadow: inset 0 1px 0 0 rgba(0, 0, 0, 0.05), inset 0 0.1em 0.1em 0 rgba(0, 0, 0, 0.025);
+            font-size: 0.8em;
+            margin-top: auto;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .container {
+            width: 100%;
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+        }
+
+        .image.main {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .image-small {
+            max-width: 50%;
+            height: auto;
+            margin: auto;
+            display: block;
+        }
+    </style>
+</head>
+<body class="is-preload">
+
+    <!-- Main Content -->
+    <div id="main">
+        <section class="post">
+            <div class="container">
+                <header class="major">
+                    <h1>Software/Web Developer, <i>January 2024 - June 2024</i></h1>
+                </header>
+                <img src="../images/Telemetry_portal.jpg" alt="Telemetry Logo" class="image main">
+                <p>The main goal of this exciting project is to create an AI-controlled RC car capable of eventually outperforming humans in actual RC car races. The professor's son, who had a passion for RC cars, inspired the idea to build something extraordinary that his son would love.</p>
+                <p>Under the guidance of Prof. Zhao, I worked with a diverse team of 14 professionals, constantly driving innovation in sensor data functionalities and enhancing the user experience. My responsibilities included upgrading the RC car's website functionalities, where I added 50% more Bluetooth sensor channels using Svelte and Python. I worked with Arduino's Nano 33 BLE Board, which I encoded to send out IMU data packets over Bluetooth to model different directions in which the RC car travels. This ensures accurate modeling, which you can see below from the GUI I developed.<img src="../images/graph.jpg" alt="Graph data" class="image-small"></p>
+                <p>The Website you see above is a forked repository of Google's Tiny Motion Trainer. We updated the GUI to suit our preferences and some functions to track the RC car while in motion. Leveraging my Svelte, TensorFlow Lite, and Python expertise, we could accurately model and begin training our car.</p>
+                <p>This project has been one of my most fun and engaging experiences. We spent weekends at the race track, testing the car and gathering data for training. The ultimate goal is to create an AI robot capable of defeating a human in an RC car race, and this journey has been enriching and educational. Below is a picture of the incredibly beloved RC car!</p>
+                <img src="../images/Rc.jpg" alt="RC car" class="image-small">
+                <footer>
+                    <ul class="actions">
+                        <li><a href="../#ProfessionalExperience" class="button">Back to Professional Experience</a></li>
+                        <li><a href="Data_Annotations.html" class="button">Next Experience</a></li>
+                    </ul>
+                </footer>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <div id="footer">
+        <div class="container">
+            <ul class="copyright">
+                <li>&copy; John Taylor. All rights reserved.</li>
+                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="../assets/js/jquery.min.js"></script>
+    <script src="../assets/js/jquery.scrolly.min.js"></script>
+    <script src="../assets/js/jquery.scrollex.min.js"></script>
+    <script src="../assets/js/browser.min.js"></script>
+    <script src="../assets/js/breakpoints.min.js"></script>
+    <script src="../assets/js/util.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

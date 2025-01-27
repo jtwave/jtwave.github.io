@@ -1,113 +1,333 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE HTML>
+<html>
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HeadStarter - Software Engineer Fellow</title>
-    <link rel="stylesheet" href="../assets/css/main.css">
+    <title>HeadStarter - Software Engineering Fellow | John Taylor</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        html, body {
-            height: 100%;
+        :root {
+            --primary-color: #2c3e50;
+            --accent-color: #34495e;
+            --text-color: #2c3e50;
+            --bg-color: #ffffff;
+            --section-bg: #f8f9fa;
+            --button-bg: rgba(44, 62, 80, 0.05);
+            --button-hover: rgba(44, 62, 80, 0.1);
+            --hero-gradient: linear-gradient(135deg, #333333, #4a4a4a, #666666);
+        }
+
+        body {
             margin: 0;
-            padding: 0;
+            font-family: 'Inter', sans-serif;
+            color: var(--text-color);
+            background: var(--bg-color);
+            line-height: 1.6;
         }
 
-        body.is-preload {
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .navbar-content {
+            max-width: 1200px;
+            margin: 0 auto;
             display: flex;
-            flex-direction: column;
             justify-content: space-between;
-        }
-
-        .post {
-            max-width: 800px;
-            width: 100%;
-            margin: auto;
-            padding: 2em 1em;
-            text-align: center;
-            box-sizing: border-box;
-        }
-
-        .actions {
-            display: flex;
-            flex-direction: column;
             align-items: center;
         }
 
-        .actions .button {
-            margin: 0.5em 0;
-            padding: 0.5em 2em;
-            background-color: #8ebebc;
-            border: none;
-            color: #fff;
+        .back-button {
+            color: var(--primary-color);
             text-decoration: none;
-            border-radius: 0.35em;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 500;
+            transition: transform 0.3s ease;
         }
 
-        .actions .button:hover {
-            background-color: #9ececc;
+        .back-button:hover {
+            transform: translateX(-5px);
         }
 
-        #footer {
-            width: 100%;
-            background-color: #dce3e2;
-            padding: 1em 0;
+        /* Hero Section */
+        .hero {
+            min-height: 60vh;
+            background: var(--hero-gradient);
+            padding: 8rem 2rem 4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             text-align: center;
-            box-shadow: inset 0 1px 0 0 rgba(0, 0, 0, 0.05), inset 0 0.1em 0.1em 0 rgba(0, 0, 0, 0.025);
-            font-size: 0.8em;
-            margin-top: auto;
+            color: white;
+            -webkit-text-fill-color: white;
         }
 
-        ul {
-            list-style: none;
-            padding: 0;
+        .hero-content {
+            max-width: 800px;
         }
 
-        .container {
-            width: 100%;
-            padding: 0;
-            margin: 0;
-            box-sizing: border-box;
+        .company-logo {
+            width: 150px;
+            height: auto;
+            margin-bottom: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin: 1rem 0;
+            font-weight: 700;
+            color: white;
+            -webkit-text-fill-color: white;
+        }
+
+        .date {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        /* Content Sections */
+        .content-section {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        .highlights {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .highlight-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .highlight-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .highlight-card h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .highlight-card p {
+            margin: 1rem 0 0;
+            color: #666;
+        }
+
+        /* Description Section */
+        .description {
+            background: var(--section-bg);
+            padding: 4rem 0;
+        }
+
+        .description-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .description p {
+            margin: 1.5rem 0;
+            font-size: 1.1rem;
+        }
+
+        /* Skills */
+        .skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-top: 2rem;
+        }
+
+        .skill-tag {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            transition: transform 0.3s ease;
+        }
+
+        .skill-tag:hover {
+            transform: scale(1.05);
+        }
+
+        /* Navigation Buttons */
+        .navigation-buttons {
+            display: flex;
+            justify-content: space-between;
+            max-width: 800px;
+            margin: 4rem auto;
+            padding: 0 2rem;
+        }
+
+        .nav-button {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            background: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-button:hover {
+            background: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        .nav-button.back {
+            background: var(--button-bg);
+            color: var(--primary-color);
+        }
+
+        .nav-button.back:hover {
+            background: var(--button-hover);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease forwards;
         }
     </style>
 </head>
-<body class="is-preload">
 
-    <!-- Main Content -->
-    <div id="main">
-        <section class="post">
-            <div class="container">
-                <header class="major">
-                    <h1>Software Engineer Fellow, <i>July 2024 - September 2024</i></h1>
-                </header>
-                <img src="../images/headstarter.jpg" alt="HeadStarter Logo" class="image main">
-                <p>TBD, just started the fellowship this week and this website you are on is the first part of it!</p>
-                <footer>
-                    <ul class="actions">
-                        <li><a href="../#ProfessionalExperience" class="button">Back to Professional Experience</a></li>
-                        <li><a href="Roark.html" class="button">Next Experience</a></li>
-                    </ul>
-                </footer>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <a href="../index.html#experience" class="back-button">
+                <span>←</span> Back to Experience
+            </a>
+            <div class="logo">
+                <h3>John Taylor</h3>
             </div>
-        </section>
-    </div>
-
-    <!-- Footer -->
-    <div id="footer">
-        <div class="container">
-            <ul class="copyright">
-                <li>&copy; John Taylor. All rights reserved.</li>
-                <li>Design: <a href="http://html5up.net">HTML5 UP</a></li>
-            </ul>
         </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <img src="../images/headstarter.jpg" alt="HeadStarter Logo" class="company-logo">
+            <h1>Software Engineering Fellow</h1>
+            <div class="date">July 2024 - September 2024</div>
+        </div>
+    </section>
+
+    <!-- Key Highlights -->
+    <section class="content-section">
+        <div class="highlights">
+            <div class="highlight-card">
+                <h3>2 AI Projects</h3>
+                <p>Built two AI-driven projects during the 7-week fellowship program</p>
+            </div>
+            <div class="highlight-card">
+                <h3>1,000+ Users</h3>
+                <p>Launched final product targeting over a thousand active users</p>
+            </div>
+            <div class="highlight-card">
+                <h3>7 Weeks</h3>
+                <p>Completed intensive fellowship program with focus on AI development</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Detailed Description -->
+    <section class="description">
+        <div class="description-content">
+            <p>As a Software Engineering Fellow at HeadStarter, I participated in an intensive 7-week program focused on
+                AI development and practical application. During this fellowship, I successfully developed and launched
+                two significant AI-driven projects.</p>
+
+            <p>The program provided hands-on experience in building scalable AI solutions, with a particular emphasis on
+                creating products that could serve a large user base. Our final product was designed and implemented
+                with the capability to support over 1,000 users.</p>
+
+            <p>This fellowship has been instrumental in enhancing my skills in AI development, project management, and
+                scalable system design. The experience gained through building and launching real-world AI applications
+                has provided valuable insights into creating user-focused solutions.</p>
+
+            <div class="skills">
+                <span class="skill-tag">AI Development</span>
+                <span class="skill-tag">Project Management</span>
+                <span class="skill-tag">Scalable Systems</span>
+                <span class="skill-tag">User Experience</span>
+                <span class="skill-tag">Product Development</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Navigation Buttons -->
+    <div class="navigation-buttons">
+        <a href="../index.html#experience" class="nav-button back">Back to Experience</a>
+        <a href="Cognizant.html" class="nav-button next">Next: Cognizant</a>
     </div>
 
-    <!-- Scripts -->
-    <script src="../assets/js/jquery.min.js"></script>
-    <script src="../assets/js/jquery.scrolly.min.js"></script>
-    <script src="../assets/js/jquery.scrollex.min.js"></script>
-    <script src="../assets/js/browser.min.js"></script>
-    <script src="../assets/js/breakpoints.min.js"></script>
-    <script src="../assets/js/util.js"></script>
-    <script src="../assets/js/main.js"></script>
+    <script>
+        // Add smooth scroll behavior
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                document.querySelector(this.getAttribute('href')).scrollIntoView({
+                    behavior: 'smooth'
+                });
+            });
+        });
+
+        // Add fade-in animations
+        const observerOptions = {
+            threshold: 0.1
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('fade-in');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.highlight-card, .description p').forEach(element => {
+            observer.observe(element);
+        });
+    </script>
 </body>
+
 </html>

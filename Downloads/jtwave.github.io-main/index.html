@@ -4,259 +4,1349 @@
 	thejohntaylor.com | @jtwave
 -->
 <html>
-	<head>
-		<title>John Taylors Portfolio</title>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
-		<link rel="stylesheet" href="assets/css/main.css" />
-	</head>
-	<body class="is-preload">
 
-		<!-- Header -->
-			<div id="header">
+<head>
+	<title>John Taylor | AI Scientist at Microsoft </title>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	<link rel="stylesheet" href="assets/css/main.css" />
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+	<style>
+		:root {
+			--primary-color: #2c3e50;
+			--accent-color: #34495e;
+			--text-color: #2c3e50;
+			--bg-color: #ffffff;
+			--section-bg: #ffffff;
+			--alt-section-bg: #f8f9fa;
+			--card-bg: #ffffff;
+			--button-bg: rgba(44, 62, 80, 0.05);
+			--button-hover: rgba(44, 62, 80, 0.1);
+			--header-height: 70px;
+		}
 
-				<div class="top">
+		body {
+			font-family: 'Inter', sans-serif;
+			color: var(--text-color);
+			line-height: 1.6;
+			margin: 0;
+			padding: 0;
+			background: var(--bg-color);
+		}
 
-					<!-- Logo -->
-						<div id="logo">
-							<span class="image avatar48"><img src="images/avatar.jpg" alt="" /></span>
-							<h1 id="title">John Taylor</h1>
-							<p></p>
-						</div>
+		.navbar {
+			position: fixed;
+			top: 0;
+			width: 100%;
+			background: rgba(255, 255, 255, 0.95);
+			backdrop-filter: blur(10px);
+			z-index: 1000;
+			padding: 1rem 0;
+			box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+		}
 
-					<!-- Nav -->
-						<nav id="nav">
-							<ul>
-								<li><a href="#top" id="top-link"><span class="icon solid fa-home">Intro</span></a></li>
-								<li><a href="#ProfessionalExperience" id="portfolio-link"><span class="icon solid fa-th">Portfolio</span></a></li>
-								<li><a href="#about" id="about-link"><span class="icon solid fa-user">About Me</span></a></li>
-								<li><a href="#contact" id="contact-link"><span class="icon solid fa-envelope">Contact</span></a></li>
-							</ul>
-						</nav>
+		.navbar-content {
+			max-width: 1400px;
+			margin: 0 auto;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding: 0 2rem;
+		}
 
+		.logo {
+			margin-right: auto;
+			padding-left: 1rem;
+		}
+
+		.logo h3 {
+			font-size: 0.95rem;
+			font-weight: 500;
+			color: var(--text-color);
+			letter-spacing: -0.01em;
+			opacity: 0.9;
+		}
+
+		.nav-links {
+			display: flex;
+			gap: 2.5rem;
+			margin-left: auto;
+			padding-right: 1rem;
+		}
+
+		.nav-links a {
+			color: var(--text-color);
+			text-decoration: none;
+			font-weight: 500;
+			transition: color 0.3s;
+			position: relative;
+			padding: 0.5rem 0;
+		}
+
+		.nav-links a::after {
+			content: '';
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			width: 0;
+			height: 2px;
+			background: var(--primary-color);
+			transition: width 0.3s ease;
+		}
+
+		.nav-links a:hover::after {
+			width: 100%;
+		}
+
+		/* Add animated background gradient */
+		@keyframes gradient {
+			0% {
+				background-position: 0% 50%;
+			}
+
+			50% {
+				background-position: 100% 50%;
+			}
+
+			100% {
+				background-position: 0% 50%;
+			}
+		}
+
+		.hero {
+			background: #ffffff;
+			height: 100vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			text-align: center;
+			position: relative;
+			overflow: hidden;
+		}
+
+		/* Remove the gradient animation since we're using a solid color */
+		.hero::before {
+			display: none;
+		}
+
+		.hero-content {
+			position: relative;
+			z-index: 1;
+			max-width: 800px;
+			padding: 0 2rem;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+
+		.hero h1 {
+			font-size: 4rem;
+			font-weight: 700;
+			margin-bottom: 0.5rem;
+			background: linear-gradient(45deg, var(--primary-color), var(--accent-color));
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			animation: fadeInUp 1s ease-out;
+		}
+
+		.hero p {
+			font-size: 1.5rem;
+			color: var(--text-color);
+			margin-bottom: 2.5rem;
+			opacity: 0.9;
+		}
+
+		.cta-button {
+			display: inline-flex;
+			align-items: center;
+			gap: 0.75rem;
+			padding: 1rem 2rem;
+			background: var(--button-bg);
+			color: var(--text-color);
+			text-decoration: none;
+			border-radius: 12px;
+			font-weight: 500;
+			border: 1px solid rgba(255, 255, 255, 0.2);
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			position: relative;
+			overflow: hidden;
+		}
+
+		.cta-button::after {
+			content: '→';
+			opacity: 0;
+			transform: translateX(-20px);
+			transition: all 0.3s ease;
+		}
+
+		.cta-button:hover::after {
+			opacity: 1;
+			transform: translateX(0);
+		}
+
+		.cta-button:hover {
+			transform: translateY(-2px);
+			background: var(--button-hover);
+			padding-right: 2.5rem;
+		}
+
+		.experience-section {
+			padding: 8rem 2rem;
+			background: var(--bg-color);
+			position: relative;
+			overflow: hidden;
+		}
+
+		.experience-section::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background: linear-gradient(135deg, rgba(44, 62, 80, 0.03) 0%, rgba(255, 255, 255, 0) 100%);
+			pointer-events: none;
+		}
+
+		.section-title {
+			text-align: center;
+			margin-bottom: 4rem;
+			opacity: 0;
+			transform: translateY(20px);
+			transition: all 0.6s ease-out;
+		}
+
+		.section-title.visible {
+			opacity: 1;
+			transform: translateY(0);
+		}
+
+		.section-title h2 {
+			font-size: 2.8rem;
+			font-weight: 700;
+			color: var(--text-color);
+			margin-bottom: 1rem;
+			letter-spacing: -0.02em;
+		}
+
+		.section-title p {
+			font-size: 1.2rem;
+			color: var(--text-color);
+			max-width: 600px;
+			margin: 0 auto;
+			line-height: 1.6;
+			opacity: 0.8;
+		}
+
+		.experience-grid {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 2.5rem;
+			max-width: 1400px;
+			margin: 0 auto;
+			padding: 2rem;
+		}
+
+		.experience-card {
+			background: var(--card-bg);
+			border-radius: 24px;
+			overflow: hidden;
+			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+			transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+			height: 100%;
+			display: flex;
+			flex-direction: column;
+			position: relative;
+			transform: translateY(0);
+			border: 1px solid rgba(255, 255, 255, 0.1);
+		}
+
+		.experience-card:hover {
+			transform: translateY(-8px);
+			box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+		}
+
+		.experience-card::before {
+			content: '';
+			position: absolute;
+			top: 20px;
+			left: 20px;
+			right: 20px;
+			height: 1px;
+			background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+		}
+
+		.experience-card::after {
+			content: '';
+			position: absolute;
+			bottom: 20px;
+			left: 20px;
+			right: 20px;
+			height: 1px;
+			background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+		}
+
+		.experience-card .image-container {
+			position: relative;
+			width: 100%;
+			height: 200px;
+			overflow: hidden;
+			background: #f8f9fa;
+			border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+		}
+
+		.experience-card img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			object-position: center;
+			transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+		}
+
+		/* Specific image adjustments */
+		.experience-card img[alt="Cognizant"],
+		.experience-card img[alt="Undergraduate Research"] {
+			object-fit: contain;
+			padding: 1rem;
+			background: white;
+		}
+
+		.experience-card:hover img {
+			transform: scale(1.1);
+		}
+
+		.card-content {
+			padding: 2rem;
+			display: flex;
+			flex-direction: column;
+			gap: 1.2rem;
+			flex-grow: 1;
+			background: var(--card-bg);
+			position: relative;
+		}
+
+		.card-content::before {
+			content: '';
+			position: absolute;
+			left: 20px;
+			top: 20px;
+			bottom: 20px;
+			width: 1px;
+			background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+		}
+
+		.card-content::after {
+			content: '';
+			position: absolute;
+			right: 20px;
+			top: 20px;
+			bottom: 20px;
+			width: 1px;
+			background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+		}
+
+		.card-content h3 {
+			font-size: 1.3rem;
+			font-weight: 600;
+			color: var(--text-color);
+			margin: 0;
+			line-height: 1.4;
+			letter-spacing: -0.01em;
+		}
+
+		.card-content p {
+			color: var(--text-color);
+			font-size: 1rem;
+			line-height: 1.6;
+			margin: 0;
+			flex-grow: 1;
+			opacity: 0.8;
+		}
+
+		.card-content .cta-button {
+			margin-top: auto;
+			padding: 1rem 1.5rem;
+			font-weight: 500;
+			letter-spacing: 0.01em;
+			border: 1px solid rgba(255, 255, 255, 0.2);
+			background: transparent;
+			transition: all 0.3s ease;
+		}
+
+		.card-content .cta-button:hover {
+			background: var(--button-bg);
+			transform: translateY(-2px);
+		}
+
+		@media (max-width: 1200px) {
+			.experience-grid {
+				grid-template-columns: repeat(2, 1fr);
+			}
+		}
+
+		@media (max-width: 768px) {
+			.experience-grid {
+				grid-template-columns: 1fr;
+				padding: 1rem;
+			}
+
+			.section-title h2 {
+				font-size: 2.2rem;
+			}
+
+			.section-title p {
+				font-size: 1.1rem;
+			}
+		}
+
+		/* Add hover effect for images */
+		.experience-card:hover .image-container img {
+			transform: scale(1.1);
+			transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+		}
+
+		/* Ensure consistent heading sizes across sections */
+		.about-content h2 {
+			font-size: 2.8rem;
+			font-weight: 700;
+			color: var(--text-color);
+			margin-bottom: 1.5rem;
+			letter-spacing: -0.02em;
+		}
+
+		.about-content p {
+			font-size: 1.1rem;
+			line-height: 1.8;
+			color: var(--text-color);
+			margin-bottom: 1.5rem;
+			opacity: 0.9;
+		}
+
+		.about-section {
+			padding: 6rem 2rem;
+			background: var(--alt-section-bg);
+			position: relative;
+			overflow: hidden;
+		}
+
+		.about-section::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background: linear-gradient(135deg, rgba(44, 62, 80, 0.03) 0%, rgba(255, 255, 255, 0) 100%);
+			pointer-events: none;
+		}
+
+		.about-grid {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 4rem;
+			max-width: 1200px;
+			margin: 0 auto;
+			align-items: center;
+		}
+
+		.about-image {
+			position: relative;
+			border-radius: 20px;
+			overflow: hidden;
+			box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+			transition: all 0.5s ease;
+		}
+
+		.about-image img {
+			width: 100%;
+			height: auto;
+		}
+
+		.about-image:hover {
+			transform: none;
+		}
+
+		.about-content {
+			padding: 2rem;
+		}
+
+		.contact-section {
+			padding: 6rem 2rem;
+			background: var(--section-bg);
+			position: relative;
+		}
+
+		.contact-section::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background: linear-gradient(135deg, rgba(44, 62, 80, 0.02) 0%, rgba(255, 255, 255, 0) 100%);
+			pointer-events: none;
+		}
+
+		.contact-form {
+			max-width: 600px;
+			margin: 0 auto;
+			background: var(--card-bg);
+			padding: 3rem;
+			border-radius: 20px;
+			box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+			transform: translateY(0);
+			transition: all 0.3s ease;
+		}
+
+		.contact-form:hover {
+			transform: translateY(-5px);
+			box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+		}
+
+		.form-group {
+			position: relative;
+			margin-bottom: 1.5rem;
+		}
+
+		.form-group input,
+		.form-group textarea {
+			width: 100%;
+			padding: 1rem;
+			border: 2px solid rgba(44, 62, 80, 0.1);
+			border-radius: 12px;
+			background: white;
+			font-size: 1rem;
+			color: var(--text-color);
+			transition: all 0.3s ease;
+			font-family: 'Inter', sans-serif;
+		}
+
+		.form-group input::placeholder,
+		.form-group textarea::placeholder {
+			color: transparent;
+		}
+
+		.form-group label {
+			position: absolute;
+			top: 1rem;
+			left: 1rem;
+			color: #666;
+			font-size: 1rem;
+			pointer-events: none;
+			transition: all 0.3s ease;
+			background: var(--card-bg);
+			padding: 0 0.5rem;
+		}
+
+		.form-group input:focus,
+		.form-group textarea:focus,
+		.form-group input:not(:placeholder-shown),
+		.form-group textarea:not(:placeholder-shown) {
+			border-color: var(--primary-color);
+			outline: none;
+		}
+
+		.form-group input:focus+label,
+		.form-group textarea:focus+label,
+		.form-group input:not(:placeholder-shown)+label,
+		.form-group textarea:not(:placeholder-shown)+label {
+			top: -0.5rem;
+			left: 0.8rem;
+			font-size: 0.8rem;
+			color: var(--primary-color);
+			background: white;
+		}
+
+		.form-group textarea {
+			min-height: 120px;
+			resize: vertical;
+		}
+
+		.submit-button {
+			width: 100%;
+			padding: 1rem;
+			background: var(--primary-color);
+			color: white;
+			border: none;
+			border-radius: 12px;
+			font-size: 1rem;
+			font-weight: 500;
+			cursor: pointer;
+			transition: all 0.3s ease;
+			position: relative;
+			overflow: hidden;
+		}
+
+		.submit-button:hover {
+			background: var(--accent-color);
+			transform: translateY(-2px);
+		}
+
+		.submit-button::after {
+			content: '';
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			width: 0;
+			height: 0;
+			background: rgba(255, 255, 255, 0.2);
+			border-radius: 50%;
+			transform: translate(-50%, -50%);
+			transition: width 0.6s ease, height 0.6s ease;
+		}
+
+		.submit-button:active::after {
+			width: 300px;
+			height: 300px;
+		}
+
+		#successMessage {
+			margin-top: 1rem;
+			padding: 1rem;
+			border-radius: 12px;
+			background: rgba(72, 187, 120, 0.1);
+			color: #38a169;
+			text-align: center;
+			transform: translateY(10px);
+			opacity: 0;
+			transition: all 0.3s ease;
+		}
+
+		#successMessage.show {
+			transform: translateY(0);
+			opacity: 1;
+		}
+
+		footer {
+			background: #1a1a1a;
+			color: white;
+			padding: 2rem;
+			text-align: center;
+		}
+
+		.social-links {
+			display: flex;
+			justify-content: center;
+			gap: 1.5rem;
+			margin-bottom: 1.5rem;
+		}
+
+		.social-links a {
+			color: white;
+			font-size: 1.5rem;
+			transition: color 0.3s;
+		}
+
+		.social-links a:hover {
+			color: var(--primary-color);
+		}
+
+		@media (max-width: 768px) {
+			.hero h1 {
+				font-size: 2.5rem;
+			}
+
+			.about-grid {
+				grid-template-columns: 1fr;
+			}
+
+			.nav-links {
+				display: none;
+			}
+
+			.experience-grid {
+				grid-template-columns: 1fr;
+				padding: 0;
+			}
+
+			.experience-card .image-container {
+				height: 200px;
+			}
+
+			.card-content {
+				padding: 1.5rem;
+			}
+		}
+
+		/* Add smooth scroll animations */
+		@keyframes fadeInUp {
+			from {
+				opacity: 0;
+				transform: translateY(20px);
+			}
+
+			to {
+				opacity: 1;
+				transform: translateY(0);
+			}
+		}
+
+		/* Add hover effect to navbar */
+		.navbar {
+			transform: translateY(0);
+			transition: transform 0.3s ease;
+		}
+
+		.navbar.hidden {
+			transform: translateY(-100%);
+		}
+
+		/* Add smooth transition to all interactive elements */
+		a,
+		button,
+		.experience-card {
+			transition: all 0.3s ease;
+		}
+
+		/* Typing animation styles */
+		.typing-text {
+			display: inline-block;
+			position: relative;
+			font-size: 2.5rem;
+			color: var(--primary-color);
+			margin-bottom: 2rem;
+			min-height: 3.5rem;
+			font-weight: 600;
+			-webkit-text-fill-color: var(--primary-color);
+			white-space: nowrap;
+		}
+
+		.typing-text::after {
+			content: '|';
+			position: absolute;
+			right: -4px;
+			top: -2px;
+			animation: blink 0.7s infinite;
+			-webkit-text-fill-color: var(--primary-color);
+			font-weight: 300;
+		}
+
+		@keyframes blink {
+
+			0%,
+			100% {
+				opacity: 1;
+			}
+
+			50% {
+				opacity: 0;
+			}
+		}
+
+		/* Projects Section Styles */
+		.projects-section {
+			padding: 6rem 2rem;
+			background: var(--section-bg);
+			position: relative;
+		}
+
+		.projects-section::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			right: 0;
+			bottom: 0;
+			background: linear-gradient(135deg, rgba(44, 62, 80, 0.02) 0%, rgba(255, 255, 255, 0) 100%);
+			pointer-events: none;
+		}
+
+		.projects-content {
+			max-width: 1200px;
+			margin: 0 auto;
+		}
+
+		.project-intro {
+			margin-bottom: 4rem;
+			text-align: center;
+		}
+
+		.project-intro h4 {
+			font-size: 1.4rem;
+			color: var(--text-color);
+			line-height: 1.6;
+			font-weight: 600;
+			max-width: 800px;
+			margin: 0 auto;
+		}
+
+		.project-grid {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 4rem;
+			align-items: center;
+			margin-bottom: 4rem;
+		}
+
+		.project-image {
+			position: relative;
+			border-radius: 20px;
+			overflow: hidden;
+			box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+		}
+
+		.project-image img {
+			width: 100%;
+			height: auto;
+			display: block;
+		}
+
+		.story-section {
+			margin-bottom: 4rem;
+		}
+
+		.story-section h5 {
+			font-size: 1.3rem;
+			color: var(--text-color);
+			margin-bottom: 1.2rem;
+			font-weight: 600;
+		}
+
+		.story-section p {
+			color: var(--text-color);
+			line-height: 1.8;
+			margin-bottom: 1.2rem;
+			font-size: 1.05rem;
+			opacity: 0.9;
+		}
+
+		.project-metrics {
+			margin-top: 4rem;
+			padding-top: 2rem;
+			border-top: 1px solid rgba(0, 0, 0, 0.1);
+		}
+
+		.impact-metrics {
+			display: flex;
+			gap: 2rem;
+			margin-top: 2rem;
+		}
+
+		.metric {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			text-align: center;
+		}
+
+		.metric-number {
+			font-size: 2rem;
+			font-weight: 700;
+			color: var(--text-color);
+			margin-bottom: 0.5rem;
+		}
+
+		.metric-label {
+			color: #666;
+			font-size: 0.9rem;
+		}
+
+		.tech-stack {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.75rem;
+		}
+
+		.tech-tag {
+			background: var(--button-bg);
+			color: var(--text-color);
+			padding: 0.5rem 1rem;
+			border-radius: 20px;
+			font-size: 0.9rem;
+			font-weight: 500;
+			transition: all 0.3s ease;
+		}
+
+		.tech-tag:hover {
+			background: var(--button-hover);
+			transform: translateY(-2px);
+		}
+
+		@media (max-width: 768px) {
+			.project-grid {
+				grid-template-columns: 1fr;
+				gap: 2rem;
+			}
+
+			.project-intro h4 {
+				font-size: 1.2rem;
+			}
+		}
+
+		.wire-pattern,
+		.circuit-line,
+		.hero::before,
+		.hero::after,
+		.experience-section::before,
+		.experience-section::after,
+		.projects-section::before,
+		.projects-section::after,
+		.about-section::before,
+		.about-section::after,
+		.contact-section::before,
+		.contact-section::after {
+			display: none;
+		}
+
+		.about-image {
+			transform: none;
+		}
+
+		.about-image:hover {
+			transform: none;
+		}
+
+		.image-caption {
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			right: 0;
+			padding: 1.5rem;
+			background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent);
+			display: flex;
+			justify-content: center;
+			opacity: 0;
+			transition: opacity 0.3s ease;
+		}
+
+		.project-image:hover .image-caption {
+			opacity: 1;
+		}
+
+		.image-caption .website-link {
+			color: white;
+			font-size: 1.1rem;
+			font-weight: 500;
+			text-decoration: none;
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+			padding: 0.75rem 1.5rem;
+			background: rgba(255, 255, 255, 0.1);
+			border-radius: 30px;
+			backdrop-filter: blur(5px);
+			transition: all 0.3s ease;
+		}
+
+		.image-caption .website-link:hover {
+			background: rgba(255, 255, 255, 0.2);
+			transform: translateY(-2px);
+		}
+
+		.link-icon {
+			font-size: 1.2rem;
+			transition: transform 0.3s ease;
+		}
+
+		.website-link:hover .link-icon {
+			transform: translate(2px, -2px);
+		}
+	</style>
+</head>
+
+<body>
+	<!-- Navigation -->
+	<nav class="navbar">
+		<div class="navbar-content">
+			<div class="logo">
+				<h3>John Taylor | AI Scientist at Microsoft | Founder of RouteStops</h3>
+			</div>
+			<div class="nav-links">
+				<a href="#home">Home</a>
+				<a href="#experience">Experience</a>
+				<a href="#projects">RouteStops</a>
+				<a href="#about">About</a>
+				<a href="#contact">Contact</a>
+			</div>
+		</div>
+	</nav>
+
+	<!-- Hero Section -->
+	<section id="home" class="hero">
+		<div class="hero-content">
+			<div class="typing-text"></div>
+			<p>Currently working alonside a Brilliant team helping Transform the future through AI innovation at
+				Microsoft. Outside of my current work I specialize in Software Engineer, machine
+				learning, data
+				analysis, and building intelligent solutions that make a difference.</p>
+			<a href="#experience" class="cta-button">View My Work</a>
+		</div>
+	</section>
+
+	<!-- Experience Section -->
+	<section id="experience" class="experience-section">
+		<div class="section-title">
+			<h2>Professional Experience</h2>
+			<p>A journey through my career in AI and software development</p>
+		</div>
+		<div class="experience-grid">
+			<!-- Microsoft -->
+			<div class="experience-card">
+				<div class="image-container">
+					<img src="images/microsoft.jpg" alt="Microsoft">
 				</div>
-
-				<div class="bottom">
-
-					<!-- Social Icons -->
-						<ul class="icons">
-							<li><a href="https://github.com/jtwave" class="icon brands fa-github"><span class="label">Github</span></a></li>
-							<li><a href="mailto:johntaylor914@outlook.com" class="icon solid fa-envelope"><span class="label">Email</span></a></li>
-							<li><a href="https://linkedin.com/in/john-taylor03" class="icon brands fa-linkedin"><span class="label">LinkedIn</span></a></li>
-						</ul>
-
+				<div class="card-content">
+					<h3>AI Scientist at Microsoft</h3>
+					<p>Enhancing Microsoft Copilot's Excel capabilities with 80% improved accuracy</p>
+					<a href="pages/Microsoft.html" class="cta-button">Learn More</a>
 				</div>
+			</div>
+			<!-- Cognizant -->
+			<div class="experience-card">
+				<div class="image-container">
+					<img src="images/cognizant.jpg" alt="Cognizant"
+						style="object-fit: contain; padding: 1rem; background: white;">
+				</div>
+				<div class="card-content">
+					<h3>Generative AI Extern at Cognizant</h3>
+					<p>Developing and implementing AI solutions for enterprise applications</p>
+					<a href="pages/cognizant.html" class="cta-button">Learn More</a>
+				</div>
+			</div>
+			<!-- Roark -->
+			<div class="experience-card">
+				<div class="image-container">
+					<img src="images/Roark.jpg" alt="Roark">
+				</div>
+				<div class="card-content">
+					<h3>AI Software Developer at Roark</h3>
+					<p>Led team in developing virtual CMO AI using GPT-4</p>
+					<a href="pages/Roark.html" class="cta-button">Learn More</a>
+				</div>
+			</div>
+			<!-- Data Annotations -->
+			<div class="experience-card">
+				<div class="image-container">
+					<img src="images/data_annotations.jpg" alt="Data Annotations">
+				</div>
+				<div class="card-content">
+					<h3>AI Trainer at Data Annotations</h3>
+					<p>Training and evaluating AI chatbots for improved code generation</p>
+					<a href="pages/Data_Annotations.html" class="cta-button">Learn More</a>
+				</div>
+			</div>
+			<!-- Undergraduate Research -->
+			<div class="experience-card">
+				<div class="image-container">
+					<img src="images/Telemetry_portal.jpg" alt="Undergraduate Research"
+						style="object-fit: contain; padding: 1rem; background: white;">
+				</div>
+				<div class="card-content">
+					<h3>Undergraduate Researcher</h3>
+					<p>Developing AI-powered RC car racing technology</p>
+					<a href="pages/Undergraduate.html" class="cta-button">Learn More</a>
+				</div>
+			</div>
+			<!-- Grand Slam -->
+			<div class="experience-card">
+				<div class="image-container">
+					<img src="images/Grand_slam.jpg" alt="Grand Slam">
+				</div>
+				<div class="card-content">
+					<h3>Pre-Sales Engineer at Grand Slam</h3>
+					<p>Creating proposal blueprints for integrated IT solutions</p>
+					<a href="pages/GrandSlam.html" class="cta-button">Learn More</a>
+				</div>
+			</div>
+			<!-- HeadStarter -->
+			<div class="experience-card">
+				<div class="image-container">
+					<img src="images/headstarter.jpg" alt="HeadStarter">
+				</div>
+				<div class="card-content">
+					<h3>Software Engineer Fellow at HeadStarter</h3>
+					<p>Building modern web applications and expanding technical skills</p>
+					<a href="pages/HeadStarter.html" class="cta-button">Learn More</a>
+				</div>
+			</div>
+		</div>
+	</section>
 
+	<!-- Projects Section -->
+	<section id="projects" class="projects-section">
+		<div class="section-title">
+			<h2>RouteStops</h2>
+			<p>A Journey from Problem to Solution</p>
+		</div>
+		<div class="projects-content">
+			<div class="project-intro">
+				<h4>Some of the best ideas come from real-life problems—things you wish existed because you'd actually
+					use them. That's exactly how RouteStops was born.</h4>
 			</div>
 
-		<!-- Main -->
-			<div id="main">
-
-				<!-- Intro -->
-					<section id="top" class="one dark cover">
-						<div class="container">
-
-							<header>
-								<h2 class="alt">Hey there my name is  <strong>John Taylor I am from Westchester County NY!</strong> I am a<br />
-								rising senior attending Binghamton University <br /> hoping to help make the world a better place through technology</h2>
-								<p>Below you can find my previous work, more information about me<br /> as well as a place to contact me if you want to share knowledge or info!<br /></p>
-							</header>
-
-							<footer>
-								<a href="#ProfessionalExperience" class="button scrolly">Professional Experience</a>
-							</footer>
-
-						</div>
-					</section>
-
-				<!-- Portfolio -->
-					<section id="ProfessionalExperience" class="two">
-						<div class="container">
-
-							<header>
-								<h2>Professional Experience</h2>
-							</header>
-
-							<p>My career has changed so much in this past year and I am so grateful for all of my previous jobs and bosses, it has truly been a blessing. Below you can see each experience I have had and feel free to click on each to learn more</p>
-
-							<div class="row">
-								<div class="col-4 col-12-mobile">
-									<article class="item">
-										<a href="pages/cognizant.html" class="image fit"><img src="images/cognizant.jpg" alt="" /></a>
-										<header>
-											<h3>Cognizant - Generative AI Extern</h3>
-										</header>
-									</article>
-									<article class="item">
-										<a href="pages/Roark.html" class="image fit"><img src="images/Roark.jpg" alt="" /></a>
-										<header>
-											<h3>Roark&Company - AI Software Developer Intern</h3>
-										</header>
-									</article>
-								</div>
-								<div class="col-4 col-12-mobile">
-									<article class="item">
-										<a href="pages/Data_Annotations.html" class="image fit"><img src="images/data_annotations.jpg" alt="" /></a>
-										<header>
-											<h3>Data Annotations - AI Trainer</h3>
-										</header>
-									</article>
-									<article class="item">
-										<a href="pages/Undergraduate.html" class="image fit"><img src="images/Telemetry_portal.jpg" alt="" /></a>
-										<header>
-											<h3>Undergraduate Researcher - Software/Web Developer</h3>
-										</header>
-									</article>
-								</div>
-								<div class="col-4 col-12-mobile">
-									<article class="item">
-										<a href="pages/GrandSlam.html" class="image fit"><img src="images/Grand_slam.jpg" alt="" /></a>
-										<header>
-											<h3>Grand Slam I.T School - Pre-Sales Engineer Intern</h3>
-										</header>
-									</article>
-									<article class="item">
-										<a href="pages/HeadStarter.html" class="image fit"><img src="images/headstarter.jpg" alt="" /></a>
-										<header>
-											<h3>HeadStarter - Software Engineer Fellow</h3>
-										</header>
-									</article>
-								</div>
-							</div>
-
-						</div>
-					</section>
-
-				<!-- About Me -->
-				<section id="about" class="three">
-					<div class="container">
-				
-						<header>
-							<h2>About Me</h2>
-						</header>
-				
-						<div class="image-grid">
-							<div class="image-row">
-								<a href="#" class="image featured"><img src="images/tennis.jpg" alt="" /></a>
-								<a href="#" class="image featured"><img src="images/grandmas.jpg" alt="" /></a>
-							</div>
-								<a><img src="images/boys.jpg" alt="" style="float:right" width=auto height=400/></a>
-						</div>
-				
-						<p><br>My name is John Adam Taylor, and I am from Westchester, NY, born on April 14, 2003. I just turned 21! Growing up, I was always fascinated by how things worked, which blossomed into my passion for computer science, specifically AI. This curiosity began in my childhood, inspired by movies like Toy Story (Toy Story 2 is my favorite), where inanimate objects came to life and interacted with humans. These films sparked my imagination, making me wonder what it would be like if my toys could understand and respond to me. Over time, this curiosity evolved into a deeper interest in understanding the magic-like qualities of technology, particularly AI.</p>
-						<p>In addition to my love for coding, I enjoy playing various sports such as basketball, golf, tennis, and volleyball. Physicaly activity is a form of meditation for me and I enjoy staying active and having fun with friends and family. Traveling is another passion of mine; one of my favorite places in the world is Florence, Italy. I believe traveling is one of the best experiences life offers, and I am incredibly grateful for the opportunities I've had to explore different cultures and places.</p>
-						<p>Currently, I am pursuing my studies at Binghamton University in Upstate NY with a major in Computer Science focusing in Artifical Intellegience, where I continue to nurture my interests and passions. Below is a place to message me with any questions, I am open to work!</p>
-				
+			<div class="project-grid">
+				<div class="project-text">
+					<div class="story-section">
+						<h5>The Road Trip Dilemma: Finding the Right Stops</h5>
+						<p>It all started while planning a ski trip. As a New Rochelle native, I was mapping out the
+							drive when the inevitable question came up: "Where should we stop for dinner?"</p>
+						<p>I wanted something along the route—not just a place nearby that would take us miles off
+							course. After bouncing between maps, review sites, and multiple apps, I realized there had
+							to be a better way. What if there was an easy way to find great restaurants, attractions, or
+							stops directly along your route? That was the spark for Route Mode—a simple, intuitive way
+							to plan the perfect stops without unnecessary detours.</p>
 					</div>
-				</section>
-				
-				<style>
-					.image-grid {
-						display: flex;
-						flex-direction: column;
-						align-items: center;
-					}
-				
-					.image-row {
-						display: flex;
-						justify-content: center;
-						gap: 1em;
-					}
-				
-					.image-center {
-						margin-top: 1em;
-					}
-				
-					.image-row .image.featured,
-					.image-center .image.featured {
-						max-width: 30%;
-						height: auto;
-					}
-				</style>
-				
-
-				<!-- Contact -->
-					<section id="contact" class="four">
-						<div class="container">
-
-							<header>
-								<h2>Contact</h2>
-							</header>
-
-							<p></p>
-
-							<form id="contactForm" method="POST" action="https://formspree.io/f/xwpelewg">
-								<div class="row">
-									<div class="col-6 col-12-mobile"><input type="text" name="name" placeholder="Name" required /></div>
-									<div class="col-6 col-12-mobile"><input type="email" name="email" placeholder="Email" required /></div>
-									<div class="col-12">
-										<textarea name="message" placeholder="Message" required></textarea>
-									</div>
-									<div class="col-12">
-										<input type="submit" value="Send Message" />
-									</div>
-								</div>
-								<div id="successMessage" style="display:none; color: green;">Message sent successfully!</div>
-							</form>
-							
-							<script>
-							document.getElementById('contactForm').addEventListener('submit', function(event) {
-								event.preventDefault(); // Prevent the default form submission
-								var form = event.target;
-								var formData = new FormData(form);
-							
-								fetch(form.action, {
-									method: form.method,
-									body: formData,
-									headers: {
-										'Accept': 'application/json'
-									}
-								}).then(response => {
-									if (response.ok) {
-										document.getElementById('successMessage').style.display = 'block'; // Show success message
-										form.reset(); // Clear the form
-										setTimeout(function() {
-											document.getElementById('successMessage').style.display = 'none';
-										}, 3000); // Hide success message after 3 seconds
-									} else {
-										response.json().then(data => {
-											if (Object.hasOwn(data, 'errors')) {
-												alert(data["errors"].map(error => error["message"]).join(", "));
-											} else {
-												alert('Oops! There was a problem submitting your form');
-											}
-										})
-									}
-								}).catch(error => {
-									alert('Oops! There was a problem submitting your form');
-								});
-							});
-							</script>
-
-						</div>
-					</section>
-
+				</div>
+				<div class="project-image">
+					<img src="images/routestops_demo.png" alt="RouteStops Demo" class="demo-image">
+					<div class="image-caption">
+						<a href="https://routestops.net" target="_blank" class="website-link">
+							Try RouteStops
+							<span class="link-icon">↗</span>
+						</a>
+					</div>
+				</div>
 			</div>
 
-		<!-- Footer -->
-			<div id="footer">
-
-				<!-- Copyright -->
-					<ul class="copyright">
-						<li>&copy; Untitled. All rights reserved.</li>
-					</ul>
-
+			<div class="story-section">
+				<h5>The Business Meeting Problem: Finding the Perfect Middle Ground</h5>
+				<p>The second lightbulb moment came when my dad needed to meet a client. They both wanted a fair meeting
+					point, but finding the perfect halfway spot was frustrating. Searching manually was time-consuming,
+					and existing tools didn't make it easy.</p>
+				<p>That's when the idea for Meetup Mode clicked—a seamless way to find ideal meeting spots exactly
+					halfway between two locations. Whether it's for business, a long-distance relationship, or catching
+					up with a friend, it solves a problem that so many people face.</p>
 			</div>
 
-		<!-- Scripts -->
-			<script src="assets/js/jquery.min.js"></script>
-			<script src="assets/js/jquery.scrolly.min.js"></script>
-			<script src="assets/js/jquery.scrollex.min.js"></script>
-			<script src="assets/js/browser.min.js"></script>
-			<script src="assets/js/breakpoints.min.js"></script>
-			<script src="assets/js/util.js"></script>
-			<script src="assets/js/main.js"></script>
+			<div class="project-grid">
+				<div class="project-text">
+					<div class="story-section">
+						<h5>Smart Results That Make Sense</h5>
+						<p>RouteStops doesn't just find places—it finds the right places. By analyzing ratings, reviews,
+							and distance from your route, it suggests stops that are both convenient and worth your
+							time. The interface presents all the key information you need at a glance: ratings, reviews,
+							distance from your route, and estimated time added to your journey.</p>
+					</div>
+				</div>
+				<div class="project-image">
+					<img src="images/ratings.png" alt="RouteStops Ratings Demo" class="demo-image">
+					<div class="image-caption">
+						<a href="https://routestops.net" target="_blank" class="website-link">
+							Try RouteStops
+							<span class="link-icon">↗</span>
+						</a>
+					</div>
+				</div>
+			</div>
 
-	</body>
+			<div class="story-section">
+				<h5>Building Something I'd Actually Use</h5>
+				<p>I've always believed the best products come from solving problems you personally care about.
+					RouteStops isn't just a project—it's something I built because I knew I would use it. It combines my
+					love for technology with a real need for better travel planning.</p>
+				<p>Whether you're on a road trip, meeting someone halfway, or just trying to plan a convenient stop,
+					RouteStops makes the journey smoother and more enjoyable.</p>
+			</div>
+
+			<div class="project-metrics">
+				<div class="impact-metrics">
+					<div class="metric">
+						<span class="metric-number">1,000+</span>
+						<span class="metric-label">Monthly Users</span>
+					</div>
+					<div class="metric">
+						<span class="metric-number">5,000+</span>
+						<span class="metric-label">Route Searches</span>
+					</div>
+					<div class="metric">
+						<span class="metric-number">$50</span>
+						<span class="metric-label">Monthly API Costs</span>
+					</div>
+				</div>
+				<div class="tech-stack">
+					<span class="tech-tag">React</span>
+					<span class="tech-tag">TypeScript</span>
+					<span class="tech-tag">Vite</span>
+					<span class="tech-tag">Tailwind CSS</span>
+					<span class="tech-tag">TripAdvisor API</span>
+					<span class="tech-tag">Geoapify API</span>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- About Section -->
+	<section id="about" class="about-section">
+		<div class="about-grid">
+			<div class="about-image">
+				<img src="images/grad_photo.jpg" alt="John Taylor">
+			</div>
+			<div class="about-content">
+				<h2>About Me</h2>
+				<p>Born and raised in Westchester, NY, I'm a passionate AI scientist and developer currently pursuing my
+					Computer Science degree at Binghamton University. My journey in technology began with a childhood
+					fascination with AI, inspired by movies like Toy Story.</p>
+				<p>Beyond coding, I'm an avid sports enthusiast, enjoying basketball, golf, tennis, and volleyball. I
+					believe in the power of physical activity as a form of meditation and the importance of maintaining
+					a balanced lifestyle.</p>
+				<p>My love for travel has taken me to amazing places, with Florence, Italy being one of my favorites.
+					These experiences have shaped my global perspective and approach to problem-solving in technology.
+				</p>
+			</div>
+		</div>
+	</section>
+
+	<!-- Contact Section -->
+	<section id="contact" class="contact-section">
+		<div class="section-title">
+			<h2>Get in Touch</h2>
+			<p>Let's discuss how we can work together</p>
+		</div>
+		<form id="contactForm" class="contact-form" method="POST" action="https://formspree.io/f/xwpelewg">
+			<div class="form-group">
+				<input type="text" name="name" id="name" placeholder="Your Name" required>
+				<label for="name">Your Name</label>
+			</div>
+			<div class="form-group">
+				<input type="email" name="email" id="email" placeholder="Your Email" required>
+				<label for="email">Your Email</label>
+			</div>
+			<div class="form-group">
+				<textarea name="message" id="message" placeholder="Your Message" required></textarea>
+				<label for="message">Your Message</label>
+			</div>
+			<button type="submit" class="submit-button">Send Message</button>
+			<div id="successMessage">Message sent successfully!</div>
+		</form>
+	</section>
+
+	<!-- Footer -->
+	<footer>
+		<div class="social-links">
+			<a href="https://github.com/jtwave" target="_blank"><i class="fab fa-github"></i></a>
+			<a href="https://linkedin.com/in/john-taylor03" target="_blank"><i class="fab fa-linkedin"></i></a>
+			<a href="mailto:johntaylor914@outlook.com"><i class="fas fa-envelope"></i></a>
+		</div>
+		<p>&copy; 2024 John Taylor. All rights reserved.</p>
+	</footer>
+
+	<!-- Scripts -->
+	<script src="https://kit.fontawesome.com/your-kit-code.js" crossorigin="anonymous"></script>
+	<script>
+		document.getElementById('contactForm').addEventListener('submit', function (event) {
+			event.preventDefault();
+			var form = event.target;
+			var formData = new FormData(form);
+			var successMessage = document.getElementById('successMessage');
+
+			fetch(form.action, {
+				method: form.method,
+				body: formData,
+				headers: {
+					'Accept': 'application/json'
+				}
+			}).then(response => {
+				if (response.ok) {
+					successMessage.classList.add('show');
+					form.reset();
+					setTimeout(function () {
+						successMessage.classList.remove('show');
+					}, 3000);
+				} else {
+					response.json().then(data => {
+						if (Object.hasOwn(data, 'errors')) {
+							alert(data["errors"].map(error => error["message"]).join(", "));
+						} else {
+							alert('Oops! There was a problem submitting your form');
+						}
+					})
+				}
+			}).catch(error => {
+				alert('Oops! There was a problem submitting your form');
+			});
+		});
+
+		// Smooth scroll behavior
+		document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+			anchor.addEventListener('click', function (e) {
+				e.preventDefault();
+				document.querySelector(this.getAttribute('href')).scrollIntoView({
+					behavior: 'smooth'
+				});
+			});
+		});
+
+		// Intersection Observer for fade-in animations
+		const observer = new IntersectionObserver((entries) => {
+			entries.forEach(entry => {
+				if (entry.isIntersecting) {
+					entry.target.classList.add('visible');
+
+					// Add stagger effect to child elements
+					if (entry.target.classList.contains('experience-grid')) {
+						entry.target.querySelectorAll('.experience-card').forEach((card, index) => {
+							card.style.animationDelay = `${index * 0.1}s`;
+							card.classList.add('visible');
+						});
+					}
+				}
+			});
+		}, {
+			threshold: 0.1,
+			rootMargin: '0px 0px -100px 0px'
+		});
+
+		// Observe all animated elements
+		document.querySelectorAll('.section-title, .experience-grid, .about-grid, .contact-form').forEach((el) => observer.observe(el));
+
+		// Navbar hide/show on scroll with smooth transition
+		let lastScroll = 0;
+		const navbar = document.querySelector('.navbar');
+
+		window.addEventListener('scroll', () => {
+			const currentScroll = window.pageYOffset;
+
+			if (currentScroll <= 0) {
+				navbar.classList.remove('hidden');
+				return;
+			}
+
+			if (currentScroll > lastScroll && !navbar.classList.contains('hidden')) {
+				navbar.classList.add('hidden');
+			} else if (currentScroll < lastScroll && navbar.classList.contains('hidden')) {
+				navbar.classList.remove('hidden');
+			}
+
+			lastScroll = currentScroll;
+		});
+
+		// Form interactions
+		const form = document.querySelector('.contact-form');
+		const inputs = form.querySelectorAll('input, textarea');
+
+		inputs.forEach(input => {
+			input.addEventListener('focus', () => {
+				input.parentElement.classList.add('focused');
+			});
+
+			input.addEventListener('blur', () => {
+				if (!input.value) {
+					input.parentElement.classList.remove('focused');
+				}
+			});
+		});
+
+		// Typing animation
+		const messages = ["Hey! Welcome to my Portfolio, I hope you enjoy"];
+
+		const typingText = document.querySelector('.typing-text');
+		let charIndex = 0;
+		let typingDelay = 70;
+
+		function typeEffect() {
+			const currentMessage = messages[0];
+
+			if (charIndex <= currentMessage.length) {
+				typingText.textContent = currentMessage.substring(0, charIndex);
+				charIndex++;
+				setTimeout(typeEffect, typingDelay);
+			}
+		}
+
+		// Start the typing animation
+		window.addEventListener('load', typeEffect);
+	</script>
+</body>
+
 </html>
-
